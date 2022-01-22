@@ -46,6 +46,9 @@
     <None Update="data\seeds.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="data\seeds_time.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="data\soils.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

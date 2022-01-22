@@ -1,0 +1,482 @@
+[
+  {
+    "Index": 1,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 2,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 3,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 4,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 5,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 6,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 7,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 8,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 9,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 10,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 11,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 12,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 13,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 14,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 15,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 16,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 17,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 18,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 19,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 20,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 21,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 22,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 23,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 24,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 25,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 26,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 27,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 28,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 29,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 30,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 31,
+    "GrowTime": 144,
+    "WiltTime": 36
+  },
+  {
+    "Index": 32,
+    "GrowTime": 144,
+    "WiltTime": 36
+  },
+  {
+    "Index": 33,
+    "GrowTime": 144,
+    "WiltTime": 36
+  },
+  {
+    "Index": 34,
+    "GrowTime": 144,
+    "WiltTime": 36
+  },
+  {
+    "Index": 35,
+    "GrowTime": 144,
+    "WiltTime": 36
+  },
+  {
+    "Index": 36,
+    "GrowTime": 144,
+    "WiltTime": 36
+  },
+  {
+    "Index": 37,
+    "GrowTime": 144,
+    "WiltTime": 36
+  },
+  {
+    "Index": 38,
+    "GrowTime": 144,
+    "WiltTime": 36
+  },
+  {
+    "Index": 39,
+    "GrowTime": 144,
+    "WiltTime": 36
+  },
+  {
+    "Index": 40,
+    "GrowTime": 168,
+    "WiltTime": 24
+  },
+  {
+    "Index": 41,
+    "GrowTime": 168,
+    "WiltTime": 24
+  },
+  {
+    "Index": 42,
+    "GrowTime": 168,
+    "WiltTime": 24
+  },
+  {
+    "Index": 43,
+    "GrowTime": 168,
+    "WiltTime": 24
+  },
+  {
+    "Index": 44,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 45,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 46,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 47,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 48,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 49,
+    "GrowTime": 72,
+    "WiltTime": 24
+  },
+  {
+    "Index": 50,
+    "GrowTime": 240,
+    "WiltTime": 24
+  },
+  {
+    "Index": 51,
+    "GrowTime": 168,
+    "WiltTime": 24
+  },
+  {
+    "Index": 52,
+    "GrowTime": 168,
+    "WiltTime": 24
+  },
+  {
+    "Index": 53,
+    "GrowTime": 168,
+    "WiltTime": 24
+  },
+  {
+    "Index": 54,
+    "GrowTime": 168,
+    "WiltTime": 24
+  },
+  {
+    "Index": 55,
+    "GrowTime": 168,
+    "WiltTime": 24
+  },
+  {
+    "Index": 56,
+    "GrowTime": 144,
+    "WiltTime": 36
+  },
+  {
+    "Index": 57,
+    "GrowTime": 72,
+    "WiltTime": 24
+  },
+  {
+    "Index": 58,
+    "GrowTime": 48,
+    "WiltTime": 0
+  },
+  {
+    "Index": 59,
+    "GrowTime": 48,
+    "WiltTime": 0
+  },
+  {
+    "Index": 60,
+    "GrowTime": 48,
+    "WiltTime": 0
+  },
+  {
+    "Index": 61,
+    "GrowTime": 48,
+    "WiltTime": 0
+  },
+  {
+    "Index": 62,
+    "GrowTime": 48,
+    "WiltTime": 0
+  },
+  {
+    "Index": 63,
+    "GrowTime": 48,
+    "WiltTime": 0
+  },
+  {
+    "Index": 64,
+    "GrowTime": 48,
+    "WiltTime": 0
+  },
+  {
+    "Index": 65,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 66,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 67,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 68,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 69,
+    "GrowTime": 168,
+    "WiltTime": 24
+  },
+  {
+    "Index": 70,
+    "GrowTime": 24,
+    "WiltTime": 0
+  },
+  {
+    "Index": 71,
+    "GrowTime": 18,
+    "WiltTime": 0
+  },
+  {
+    "Index": 72,
+    "GrowTime": 18,
+    "WiltTime": 0
+  },
+  {
+    "Index": 73,
+    "GrowTime": 18,
+    "WiltTime": 0
+  },
+  {
+    "Index": 74,
+    "GrowTime": 18,
+    "WiltTime": 0
+  },
+  {
+    "Index": 75,
+    "GrowTime": 18,
+    "WiltTime": 0
+  },
+  {
+    "Index": 76,
+    "GrowTime": 18,
+    "WiltTime": 0
+  },
+  {
+    "Index": 77,
+    "GrowTime": 22,
+    "WiltTime": 0
+  },
+  {
+    "Index": 78,
+    "GrowTime": 13,
+    "WiltTime": 0
+  },
+  {
+    "Index": 79,
+    "GrowTime": 24,
+    "WiltTime": 0
+  },
+  {
+    "Index": 80,
+    "GrowTime": 24,
+    "WiltTime": 0
+  },
+  {
+    "Index": 81,
+    "GrowTime": 24,
+    "WiltTime": 0
+  },
+  {
+    "Index": 82,
+    "GrowTime": 24,
+    "WiltTime": 0
+  },
+  {
+    "Index": 83,
+    "GrowTime": 24,
+    "WiltTime": 0
+  },
+  {
+    "Index": 84,
+    "GrowTime": 120,
+    "WiltTime": 48
+  },
+  {
+    "Index": 85,
+    "GrowTime": 120,
+    "WiltTime": 24
+  },
+  {
+    "Index": 86,
+    "GrowTime": 24,
+    "WiltTime": 0
+  },
+  {
+    "Index": 87,
+    "GrowTime": 24,
+    "WiltTime": 0
+  },
+  {
+    "Index": 88,
+    "GrowTime": 24,
+    "WiltTime": 0
+  },
+  {
+    "Index": 89,
+    "GrowTime": 24,
+    "WiltTime": 0
+  },
+  {
+    "Index": 90,
+    "GrowTime": 24,
+    "WiltTime": 0
+  },
+  {
+    "Index": 91,
+    "GrowTime": 24,
+    "WiltTime": 0
+  },
+  {
+    "Index": 92,
+    "GrowTime": 24,
+    "WiltTime": 0
+  },
+  {
+    "Index": 93,
+    "GrowTime": 24,
+    "WiltTime": 0
+  },
+  {
+    "Index": 94,
+    "GrowTime": 168,
+    "WiltTime": 24
+  },
+  {
+    "Index": 95,
+    "GrowTime": 24,
+    "WiltTime": 0
+  },
+  {
+    "Index": 96,
+    "GrowTime": 24,
+    "WiltTime": 0
+  }
+]

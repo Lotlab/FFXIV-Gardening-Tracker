@@ -587,6 +587,14 @@ namespace GardeningTracker
         public UInt16 MapId;
         public UInt16 WorldId;
 
+        public FFXIVLandIdent(UInt16 land, UInt16 ward, UInt16 map, UInt16 world)
+        {
+            LandId = land;
+            WardNum = ward;
+            MapId = map;
+            WorldId = world;
+        }
+
         public override string ToString()
         {
             return $"({WorldId}, {MapId}, {WardNum}, {LandId})";

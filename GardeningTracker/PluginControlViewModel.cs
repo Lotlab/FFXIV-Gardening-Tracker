@@ -1,30 +1,32 @@
 ﻿using Lotlab;
+using System;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Windows.Data;
 
 namespace GardeningTracker
 {
-    public class PluginControlViewModel : PropertyNotifier
+    class PluginControlViewModel : PropertyNotifier
     {
-        public ObservableCollection<LogItem> Logs => logger.ObserveLogs;
+        public ObservableCollection<LogItem> Logs => tracker.Logger.ObserveLogs;
+        public ObservableCollection<GardeningDisplayItem> Gardens => tracker.Storage.Gardens;
 
-        SimpleLogger logger;
+        GardeningTracker tracker;
 
-        public PluginControlViewModel(Config config, SimpleLogger logger)
+        public PluginControlViewModel(GardeningTracker tracker)
         {
-            this.logger = logger;
+            this.tracker = tracker;
+
+            tracker.PropertyChanged += TrackerPropertyProxy;
         }
 
-        string currentZone;
-        public string CurrentZone
+        private void TrackerPropertyProxy(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            get => currentZone; 
-            set
-            {
-                currentZone = value;
-                OnPropertyChanged();
-            }
+            if (e.PropertyName == nameof(tracker.CurrentZone))
+                OnPropertyChanged(nameof(CurrentZone));
         }
+
+        public string CurrentZone => tracker.GetZoneName(tracker.CurrentZone);
     }
 }
 

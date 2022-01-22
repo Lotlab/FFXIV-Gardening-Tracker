@@ -3,34 +3,78 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:GardeningTracker" d:DataContext="{d:DesignInstance Type=local:PluginControlViewModel}"
+             xmlns:local="clr-namespace:GardeningTracker"
+             d:DataContext="{d:DesignInstance Type=local:PluginControlViewModel}"
              mc:Ignorable="d" 
-             d:DesignWidth="800" d:DesignHeight="600">
-    
+             d:DesignWidth="800" d:DesignHeight="600"
+             FontFamily="Microsoft YaHei UI"
+             FontSize="12"
+             >
+    <UserControl.Resources>
+        <local:UnixTimestampConverter x:Key="dateConverter"/>
+    </UserControl.Resources>
+
     <DockPanel Background="White" >
         <!-- 右侧功能 -->
-        <DockPanel DockPanel.Dock="Bottom" Margin="0,8,10,8" Height="300px">
-            <TabControl FontFamily="Microsoft YaHei UI" FontSize="12">
-                <TabItem Header="日志">
-                    <DockPanel>
-                        <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding Logs, Mode=OneWay}">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Padding="0" Margin="0" TextWrapping="Wrap" Text="{Binding Content, Mode=OneWay}"/>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-                    </DockPanel>
-                </TabItem>
-            </TabControl>
-        </DockPanel>
-        <GroupBox Margin="0,8,10,8" FontFamily="Microsoft YaHei UI" FontSize="12">
-            <StackPanel>
-                <StackPanel Orientation="Horizontal">
-                    <Label>当前区域：</Label>
-                    <Label Content="{Binding CurrentZone}"/>
-                </StackPanel>
-            </StackPanel>
-        </GroupBox>
+
+        <Grid Margin="8">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="200"></RowDefinition>
+            </Grid.RowDefinitions>
+            <GroupBox Grid.Row="0">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+                        <Label>当前区域：</Label>
+                        <Label Content="{Binding CurrentZone}"/>
+                    </StackPanel>
+                    <DataGrid
+                        ItemsSource="{Binding Gardens, Mode=OneWay}"
+                        VerticalGridLinesBrush="Gray"
+                        HorizontalGridLinesBrush="Gray"
+                        IsReadOnly="True"
+                        AutoGenerateColumns="False"
+                        >
+                        <DataGrid.Columns >
+                            <DataGridTextColumn Width="3*" Header="住宅" Binding="{Binding House}"></DataGridTextColumn>
+                            <DataGridTextColumn Width="1*" Header="位置" Binding="{Binding Pot}"></DataGridTextColumn>
+                            <DataGridTextColumn Width="1*" Header="土壤" Binding="{Binding Soil}"></DataGridTextColumn>
+                            <DataGridTextColumn Width="1*" Header="种子" Binding="{Binding Seed}"></DataGridTextColumn>
+                            <DataGridTextColumn Width="3*" Header="播种时间" Binding="{Binding SowTime, Converter={StaticResource dateConverter}}"></DataGridTextColumn>
+                            <DataGridTextColumn Width="3*" Header="上次护理时间" Binding="{Binding LastCare, Converter={StaticResource dateConverter}}"></DataGridTextColumn>
+                            <DataGridTextColumn Width="3*" Header="预计枯萎时间" Binding="{Binding EstWitheredTime, Converter={StaticResource dateConverter}}"></DataGridTextColumn>
+                            <DataGridTextColumn Width="3*" Header="预计成熟时间" Binding="{Binding EstMatureTime, Converter={StaticResource dateConverter}}"></DataGridTextColumn>
+                        </DataGrid.Columns>
+                        <DataGrid.CellStyle>
+                            <Style TargetType="DataGridCell">
+                                <Setter Property="Padding" Value="3"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="{x:Type DataGridCell}">
+                                            <Border Padding="{TemplateBinding Padding}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+                                                <ContentPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </DataGrid.CellStyle>
+                    </DataGrid>
+                </DockPanel>
+            </GroupBox>
+            <GridSplitter
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Top"
+                Grid.Row="1" Height="1" />
+            <GroupBox Header="日志" Grid.Row="1">
+                <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding Logs, Mode=OneWay}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Padding="0" Margin="0" TextWrapping="Wrap" Text="{Binding Content, Mode=OneWay}"/>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </GroupBox>
+        </Grid>
     </DockPanel>
 </UserControl>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -59,6 +60,31 @@ namespace GardeningTracker
         public static void SetAutoScroll(DependencyObject obj, bool value)
         {
             obj.SetValue(AutoScrollProperty, value);
+        }
+    }
+
+
+    [ValueConversion(typeof(Int64), typeof(string))]
+    public class UnixTimestampConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            try
+            {
+                Int64 timestamp = System.Convert.ToInt64(value);
+                if (timestamp == 0) return "-";
+
+                return DateTimeOffset.FromUnixTimeSeconds(timestamp).LocalDateTime.ToString("yyyy-MM-dd HH:mm:ss");
+            }
+            catch
+            {
+                return "-";
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
         }
     }
 }
