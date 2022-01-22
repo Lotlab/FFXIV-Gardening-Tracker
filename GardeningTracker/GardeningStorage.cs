@@ -52,7 +52,7 @@ namespace GardeningTracker
                 data.IsGarden(item.Ident.ObjectID, out var name, out var isPot);
                 var houseName = data.GetZoneName(item.Ident.House);
                 var landName = data.GetGardenNamePos(item.Ident.ObjectID, item.Ident.LandIndex, item.Ident.LandSubIndex);
-                dispDict[item.Ident] = new GardeningDisplayItem(houseName, landName, data.GetSoilName(item.Soil), data.GetSeedName(item.Seed), item.SowTime);
+                dispDict[item.Ident] = new GardeningDisplayItem(houseName, landName, data.GetSoilName(item.Soil), data.GetSeedName(item.Seed), item.SowTime, item.LastCare);
 
                 Gardens.Add(dispDict[item.Ident]);
 
@@ -85,7 +85,7 @@ namespace GardeningTracker
                 dispDict[ident].EstMatureTime = 0;
                 return;
             }
-            
+
             // 计算施肥
             foreach (var item in obj.Fertilizes)
             {
@@ -284,7 +284,7 @@ namespace GardeningTracker
         /// <summary>
         /// 上次护理时间
         /// </summary>
-        public UInt64 LastCare { get; set; } = 0;
+        public UInt64 LastCare { get; set; }
 
         /// <summary>
         /// 施肥信息
@@ -379,7 +379,7 @@ namespace GardeningTracker
         /// </summary>
         public UInt64 LastCare
         {
-            get => _lastCare; 
+            get => _lastCare;
             set
             {
                 _lastCare = value;
@@ -417,14 +417,19 @@ namespace GardeningTracker
             }
         }
 
-        public GardeningDisplayItem(string house, string pot, string soil, string seed, UInt64 sowTime)
+        public GardeningDisplayItem(string house, string pot, string soil, string seed, UInt64 sowTime) 
+            : this(house, pot, soil, seed, sowTime, sowTime)
+        {
+        }
+
+        public GardeningDisplayItem(string house, string pot, string soil, string seed, UInt64 sowTime, UInt64 lastCare)
         {
             House = house;
             Pot = pot;
             Soil = soil;
             Seed = seed;
             SowTime = sowTime;
-            LastCare = sowTime;
+            LastCare = lastCare;
 
             EstMatureTime = 0;
             EstWitheredTime = 0;
