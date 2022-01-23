@@ -356,7 +356,7 @@ namespace GardeningTracker
             if (!CurrentZone.IsInHouse)
                 zoneIdent.LandId = obj.HousingLandID;
 
-            return new GardeningIdent(zoneIdent, obj.ActorId, obj.ObjId, obj.HousingLink);
+            return new GardeningIdent(zoneIdent, obj.ObjId, obj.HousingLink);
         }
 
         private string getPotPos(GardeningIdent obj)
@@ -500,10 +500,9 @@ namespace GardeningTracker
         private void WriteActLog(GardeningIdent ident, GardenOperation op, uint param1 = 0, uint param2 = 0)
         {
             // 写Binary数据
-            string actorID = BitConverter.GetBytes(ident.ActorID).ToHexString();
             string objID = BitConverter.GetBytes(ident.ObjectID).ToHexString();
             string housingLink = BitConverter.GetBytes((ident.LandIndex << 16) + ident.LandSubIndex).ToHexString();
-            var str = $"00|{DateTime.Now.ToString("O")}|0|GardeningTracker|{ident.House.ToHexString()}|{actorID}|{objID}|{housingLink}|{(int)op}|{param1}|{param2}||";
+            var str = $"00|{DateTime.Now.ToString("O")}|0|GardeningTracker|{ident.House.ToHexString()}|{objID}|{housingLink}|{(int)op}|{param1}|{param2}||";
             logInAct(str);
 
             // 写可读数据

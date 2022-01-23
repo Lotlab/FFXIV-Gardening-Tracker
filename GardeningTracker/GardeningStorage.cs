@@ -228,19 +228,13 @@ namespace GardeningTracker
 
         public uint HousingLink { get; set; }
 
-        /// <summary>
-        /// ActorID
-        /// </summary>
-        public UInt32 ActorID { get; set; }
-
         public GardeningIdent() { }
 
-        public GardeningIdent(FFXIVLandIdent ident, UInt32 actorID, uint landObjId, UInt32 housingLink)
+        public GardeningIdent(FFXIVLandIdent ident, uint landObjId, UInt32 housingLink)
         {
             House = ident;
             ObjectID = landObjId;
             HousingLink = housingLink;
-            ActorID = actorID;
 
             LandIndex = HousingLink & 0xFF;
             LandSubIndex = (HousingLink >> 24) & 0xFF;
@@ -251,14 +245,14 @@ namespace GardeningTracker
             if (ReferenceEquals(other, null)) return false;
             if (ReferenceEquals(this, other)) return true;
 
-            return House == other.House && ActorID == other.ActorID;
+            return House == other.House && ObjectID == other.ObjectID && LandIndex == other.LandIndex && LandSubIndex == other.LandSubIndex;
         }
 
         public override bool Equals(object obj) => Equals(obj as GardeningIdent);
 
         public override int GetHashCode()
         {
-            return (House, ActorID).GetHashCode();
+            return (House, ObjectID, LandIndex, LandSubIndex).GetHashCode();
         }
     }
 
@@ -294,8 +288,8 @@ namespace GardeningTracker
         /// </summary>
         public List<GardeningFertilizeInfo> Fertilizes { get; set; } = new List<GardeningFertilizeInfo>();
 
-        public GardeningItem(FFXIVLandIdent ident, UInt32 actorID, uint landObjId, uint housingLink, uint soil, uint seed, UInt64 time) :
-            this(new GardeningIdent(ident, actorID, landObjId, housingLink), soil, seed, time)
+        public GardeningItem(FFXIVLandIdent ident, uint landObjId, uint housingLink, uint soil, uint seed, UInt64 time) :
+            this(new GardeningIdent(ident, landObjId, housingLink), soil, seed, time)
         {
         }
 
