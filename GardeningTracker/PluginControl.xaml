@@ -2,7 +2,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"  
              xmlns:local="clr-namespace:GardeningTracker"
              d:DataContext="{d:DesignInstance Type=local:PluginControlViewModel}"
              mc:Ignorable="d" 
@@ -15,65 +15,79 @@
     </UserControl.Resources>
 
     <DockPanel Background="White" >
-        <!-- 右侧功能 -->
-
         <Grid Margin="8">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*"></RowDefinition>
                 <RowDefinition Height="200"></RowDefinition>
             </Grid.RowDefinitions>
-            <GroupBox Grid.Row="0">
-                <DockPanel>
-                    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
-                        <Label>当前区域：</Label>
-                        <Label Content="{Binding CurrentZone}"/>
-                    </StackPanel>
-                    <DataGrid
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="200"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <GroupBox Header="苗圃信息" Grid.Row="0">
+                <DataGrid
                         ItemsSource="{Binding Gardens, Mode=OneWay}"
                         VerticalGridLinesBrush="Gray"
                         HorizontalGridLinesBrush="Gray"
                         IsReadOnly="True"
                         AutoGenerateColumns="False"
                         >
-                        <DataGrid.Columns >
-                            <DataGridTextColumn Width="3*" Header="住宅" Binding="{Binding House}"></DataGridTextColumn>
-                            <DataGridTextColumn Width="1*" Header="位置" Binding="{Binding Pot}"></DataGridTextColumn>
-                            <DataGridTextColumn Width="1*" Header="土壤" Binding="{Binding Soil}"></DataGridTextColumn>
-                            <DataGridTextColumn Width="1*" Header="种子" Binding="{Binding Seed}"></DataGridTextColumn>
-                            <DataGridTextColumn Width="3*" Header="播种时间" Binding="{Binding SowTime, Converter={StaticResource dateConverter}}"></DataGridTextColumn>
-                            <DataGridTextColumn Width="3*" Header="上次护理时间" Binding="{Binding LastCare, Converter={StaticResource dateConverter}}"></DataGridTextColumn>
-                            <DataGridTextColumn Width="3*" Header="预计枯萎时间" Binding="{Binding EstWitheredTime, Converter={StaticResource dateConverter}}"></DataGridTextColumn>
-                            <DataGridTextColumn Width="3*" Header="预计成熟时间" Binding="{Binding EstMatureTime, Converter={StaticResource dateConverter}}"></DataGridTextColumn>
-                        </DataGrid.Columns>
-                        <DataGrid.CellStyle>
-                            <Style TargetType="DataGridCell">
-                                <Setter Property="Padding" Value="3"/>
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="{x:Type DataGridCell}">
-                                            <Border Padding="{TemplateBinding Padding}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
-                                                <ContentPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
-                                            </Border>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </DataGrid.CellStyle>
-                    </DataGrid>
-                </DockPanel>
+                    <DataGrid.Columns >
+                        <DataGridTextColumn Width="3*" Header="住宅" Binding="{Binding House}"></DataGridTextColumn>
+                        <DataGridTextColumn Width="1*" Header="位置" Binding="{Binding Pot}"></DataGridTextColumn>
+                        <DataGridTextColumn Width="1*" Header="土壤" Binding="{Binding Soil}"></DataGridTextColumn>
+                        <DataGridTextColumn Width="1*" Header="种子" Binding="{Binding Seed}"></DataGridTextColumn>
+                        <DataGridTextColumn Width="3*" Header="播种时间" Binding="{Binding SowTime, Converter={StaticResource dateConverter}}"></DataGridTextColumn>
+                        <DataGridTextColumn Width="3*" Header="上次护理时间" Binding="{Binding LastCare, Converter={StaticResource dateConverter}}"></DataGridTextColumn>
+                        <DataGridTextColumn Width="3*" Header="预计枯萎时间" Binding="{Binding EstWitheredTime, Converter={StaticResource dateConverter}}"></DataGridTextColumn>
+                        <DataGridTextColumn Width="3*" Header="预计成熟时间" Binding="{Binding EstMatureTime, Converter={StaticResource dateConverter}}"></DataGridTextColumn>
+                    </DataGrid.Columns>
+                    <DataGrid.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="Padding" Value="3"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type DataGridCell}">
+                                        <Border Padding="{TemplateBinding Padding}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
+                                            <ContentPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGrid.CellStyle>
+                </DataGrid>
+            </GroupBox>
+            <GroupBox Header="设置" Grid.Column="1">
+                <Grid VerticalAlignment="Top">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="70"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition></RowDefinition>
+                        <RowDefinition></RowDefinition>
+                    </Grid.RowDefinitions>
+
+                    <Label Grid.Row="0" Grid.Column="0">当前区域：</Label>
+                    <Label Grid.Row="0" Grid.Column="1" Content="{Binding CurrentZone}"/>
+                    <Label Grid.Row="1" Grid.Column="0">日志级别：</Label>
+                    <ComboBox Grid.Row="1" Grid.Column="1" SelectedItem="{Binding LogLevel}" ItemsSource="{Binding LogLevels}">
+                    </ComboBox>
+                </Grid>
             </GroupBox>
             <GridSplitter
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Top"
                 Grid.Row="1" Height="1" />
-            <GroupBox Header="日志" Grid.Row="1">
-                <ListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding Logs, Mode=OneWay}">
+            <GroupBox Header="日志" Grid.Row="1" Grid.ColumnSpan="2">
+                <local:AutoScrollListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding Logs, Mode=OneWay}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <TextBlock Padding="0" Margin="0" TextWrapping="Wrap" Text="{Binding Content, Mode=OneWay}"/>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
-                </ListBox>
+                </local:AutoScrollListBox>
             </GroupBox>
         </Grid>
     </DockPanel>

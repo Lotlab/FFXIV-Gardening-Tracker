@@ -284,6 +284,78 @@ namespace GardeningTracker
     }
 
     /// <summary>
+    /// 物体额外信息
+    /// </summary>
+    class FFXIVIpcObjectExternData
+    {
+        public UInt32 HousingLink { get; }
+
+        public byte[] Data { get; }
+
+        public FFXIVIpcObjectExternData(byte[] message)
+        {
+            if (message.Length != 48) throw new ArgumentException("不是一个正确的 ObjectExternalData 包");
+            var offset = 0;
+            HousingLink = BitConverter.ToUInt32(message, offset);
+            offset += sizeof(UInt32);
+
+            Data = new byte[48 - offset];
+            Array.Copy(message, offset, Data, 0, Data.Length);
+        }
+
+        public override string ToString()
+        {
+            return $"Object External Data. HousingLink: {HousingLink}, Data: {Data.ToHexString()}";
+        }
+    }
+
+    /// <summary>
+    /// 土地的额外信息
+    /// </summary>
+    class FFXIVLandExternalData
+    {
+        public struct LandInfo
+        {
+            public UInt16 Seed;
+            public byte State;
+        }
+
+        public LandInfo[] Infos;
+
+        public FFXIVLandExternalData(byte[] data)
+        {
+            Infos = new LandInfo[8];
+            var offset = 0;
+
+            for (int i = 0; i < 8; i++)
+            {
+                Infos[i].Seed = BitConverter.ToUInt16(data, offset);
+                offset += sizeof(UInt16);
+            }
+            for (int i = 0; i < 8; i++)
+            {
+                Infos[i].State = data[offset++];
+            }
+        }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder();
+            sb.Append("Land Data: ");
+            for (int i = 0; i < 8; i++)
+            {
+                sb.Append("(");
+                sb.Append(Infos[i].Seed.ToString());
+                sb.Append(",");
+                sb.Append(Infos[i].State.ToString());
+                sb.Append(")");
+                if (i != 7) sb.Append(", ");
+            }
+            return base.ToString();
+        }
+    }
+
+    /// <summary>
     /// 位置信息
     /// </summary>
     struct FFXIVPosition3

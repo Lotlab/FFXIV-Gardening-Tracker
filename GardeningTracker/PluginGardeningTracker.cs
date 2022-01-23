@@ -3,31 +3,48 @@ using Advanced_Combat_Tracker;
 using FFXIV_ACT_Plugin.Common;
 using System.Windows.Forms;
 using System.Windows.Forms.Integration;
-using Lotlab;
-using System.IO;
+using System.Text.RegularExpressions;
+using System.Linq;
 
 namespace GardeningTracker
 {
     public class PluginGardeningTracker : IActPluginV1
     {
-        IDataSubscription _ffxivPlugin = null;
+        IDataSubscription _ffxivDataSub = null;
 
-        IDataSubscription ffxivPlugin
+        IDataRepository _ffxivDataRepo = null;
+
+        IDataSubscription ffxivDataSub
         {
             get
             {
-                if (_ffxivPlugin == null)
+                if (_ffxivDataSub == null)
+                    getXIVPlugin();
+
+                return _ffxivDataSub;
+            }
+        }
+
+        IDataRepository ffxivDataRepo
+        {
+            get
+            {
+                if (_ffxivDataRepo == null)
+                    getXIVPlugin();
+
+                return _ffxivDataRepo;
+            }
+        }
+        private void getXIVPlugin()
+        {
+            var plugins = ActGlobals.oFormActMain.ActPlugins;
+            foreach (var item in plugins)
+            {
+                if (item.pluginFile.Name.ToUpper().Contains("FFXIV_ACT_PLUGIN"))
                 {
-                    var plugins = ActGlobals.oFormActMain.ActPlugins;
-                    foreach (var item in plugins)
-                    {
-                        if (item.pluginFile.Name.ToUpper().Contains("FFXIV_ACT_PLUGIN"))
-                        {
-                            _ffxivPlugin = item.pluginObj.GetType().GetProperty("DataSubscription").GetValue(item.pluginObj) as IDataSubscription;
-                        }
-                    }
+                    _ffxivDataSub = item.pluginObj.GetType().GetProperty("DataSubscription").GetValue(item.pluginObj) as IDataSubscription;
+                    _ffxivDataRepo = item.pluginObj.GetType().GetProperty("DataRepository").GetValue(item.pluginObj) as IDataRepository;
                 }
-                return _ffxivPlugin;
             }
         }
 
@@ -67,7 +84,7 @@ namespace GardeningTracker
             lblStatus = pluginStatusText;
             lblStatus.Text = "Plugin working.";
 
-            if (ffxivPlugin == null)
+            if (ffxivDataSub == null)
             {
                 lblStatus.Text = "FFXIV Act Plugin is not loading.";
                 return;
@@ -81,8 +98,9 @@ namespace GardeningTracker
             tracker = new GardeningTracker(actLog);
 
             // Register events
-            ffxivPlugin.NetworkSent += onNetworkSend;
-            ffxivPlugin.NetworkReceived += onNetworkReceive;
+            ffxivDataSub.NetworkSent += onNetworkSend;
+            ffxivDataSub.NetworkReceived += onNetworkReceive;
+            ffxivDataSub.LogLine += onLogLine;
 
             page.Text = "园艺时钟";
 
@@ -97,10 +115,33 @@ namespace GardeningTracker
             page.Controls.Add(host);
         }
 
+        private void onLogLine(uint EventType, uint Seconds, string logline)
+        {
+            if (EventType != 57) return;
+
+            var match = Regex.Match(logline, "(.+)第([0-9]+)区");
+            if (!match.Success) return;
+
+            var map = match.Groups[1].Value;
+            var ward = match.Groups[2].Value;
+
+            if (!int.TryParse(ward, out int wardNum))
+            {
+                tracker.Logger.LogDebug($"区域解析失败。{map}, {ward}");
+                return;
+            }
+
+            var worldID = ffxivDataRepo.GetCombatantList()
+                .FirstOrDefault(x => x.ID == ffxivDataRepo.GetCurrentPlayerID()).CurrentWorldID;
+
+            tracker.SystemLogZoneChange(worldID, map, wardNum);
+        }
+
         void pluginDeinit()
         {
-            ffxivPlugin.NetworkSent -= onNetworkSend;
-            ffxivPlugin.NetworkReceived -= onNetworkReceive;
+            ffxivDataSub.NetworkSent -= onNetworkSend;
+            ffxivDataSub.NetworkReceived -= onNetworkReceive;
+            ffxivDataSub.LogLine -= onLogLine;
 
             tracker.DeInit();
         }

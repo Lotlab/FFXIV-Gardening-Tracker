@@ -38,10 +38,17 @@ namespace Lotlab
         {
             filterLevel = filter;
 
-            if (!string.IsNullOrEmpty(file))
+            try
             {
-                logFile = File.Open(file, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
-                logFileWriter = new StreamWriter(logFile);
+                if (!string.IsNullOrEmpty(file))
+                {
+                    logFile = File.Open(file, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
+                    logFileWriter = new StreamWriter(logFile);
+                }
+            }
+            catch (Exception e)
+            {
+                LogError("日志文件打开出错，将无法写日志文件：" + e.Message);
             }
 
             BindingOperations.EnableCollectionSynchronization(ObserveLogs, logLock);

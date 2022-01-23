@@ -84,6 +84,11 @@ namespace GardeningTracker
         public Dictionary<uint, uint> SeedProducts = new Dictionary<uint, uint>();
 
         /// <summary>
+        /// 种子Index与ID对应表
+        /// </summary>
+        public Dictionary<uint, uint> SeedIndexTable = new Dictionary<uint, uint>();
+
+        /// <summary>
         /// 种子时间信息
         /// </summary>
         public Dictionary<uint, SeedTime> SeedTimeInfos = new Dictionary<uint, SeedTime>();
@@ -182,13 +187,13 @@ namespace GardeningTracker
             SeedNames.Clear();
             ProductNames.Clear();
             SeedProducts.Clear();
-            Dictionary<uint, uint> seedIndexDict = new Dictionary<uint, uint>();
+            SeedIndexTable.Clear();
             foreach (var item in seedInfos)
             {
                 SeedNames[item.Seed.Id] = item.Seed.Name;
                 ProductNames[item.Item.Id] = item.Item.Name;
                 SeedProducts[item.Seed.Id] = item.Item.Id;
-                seedIndexDict[item.Index] = item.Seed.Id;
+                SeedIndexTable[item.Index] = item.Seed.Id;
             }
 
             // 种子时间信息
@@ -196,7 +201,7 @@ namespace GardeningTracker
             SeedTimeInfos.Clear();
             foreach (var item in seedExtInfos)
             {
-                var seedId = seedIndexDict[item.Index];
+                var seedId = SeedIndexTable[item.Index];
                 SeedTimeInfos[seedId] = new SeedTime() { GrowTime = item.GrowTime, WiltTime = item.WiltTime };
             }
         }
@@ -305,6 +310,18 @@ namespace GardeningTracker
                 return 0;
 
             return SeedTimeInfos[seedId].WiltTime * 60 * 60;
+        }
+
+        /// <summary>
+        /// 根据Index获取种子ID
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        public uint GetSeedIdByIndex(uint index)
+        {
+            if (!SeedIndexTable.ContainsKey(index)) return 0;
+
+            return SeedIndexTable[index];
         }
     }
 }

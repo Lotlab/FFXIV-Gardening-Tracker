@@ -1,14 +1,39 @@
-﻿namespace GardeningTracker
+﻿using Lotlab;
+using System.IO;
+using Newtonsoft.Json;
+
+namespace GardeningTracker
 {
     public class Config
     {
+        public LogLevel LogLevel { get; set; } = LogLevel.INFO;
+
         public Config()
         {
         }
 
-        public void LoadSettings()
-        {
+        string configFile => Path.Combine(GardeningTracker.DataPath, "config.json");
 
+        /// <summary>
+        /// 载入配置文件
+        /// </summary>
+        public void Load()
+        {
+            if (!File.Exists(configFile)) return;
+
+            var content = File.ReadAllText(configFile);
+            var obj = JsonConvert.DeserializeObject<Config>(content);
+
+            LogLevel = obj.LogLevel;
+        }
+
+        /// <summary>
+        /// 保存配置文件
+        /// </summary>
+        public void Save()
+        {
+            var content = JsonConvert.SerializeObject(this);
+            File.WriteAllText(content, configFile);
         }
     }
 }

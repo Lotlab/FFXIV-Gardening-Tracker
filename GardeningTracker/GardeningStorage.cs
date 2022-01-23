@@ -19,11 +19,10 @@ namespace GardeningTracker
 
         public readonly object StorageLock = new object();
 
-        GardeningData data;
+        GardeningData data { get; }
         public GardeningStorage(GardeningData data)
         {
             this.data = data;
-
             BindingOperations.EnableCollectionSynchronization(Gardens, StorageLock);
         }
 
@@ -67,9 +66,9 @@ namespace GardeningTracker
         /// 为没播种的添加一个虚假的Item
         /// </summary>
         /// <param name="ident"></param>
-        private void createFakeItem(GardeningIdent ident)
+        private void createFakeItem(GardeningIdent ident, uint seed = 0)
         {
-            addItem(new GardeningItem(ident, 0, 0, 0));
+            addItem(new GardeningItem(ident, 0, seed, 0));
         }
 
         /// <summary>
@@ -104,7 +103,7 @@ namespace GardeningTracker
         {
             var obj = storageDict[ident];
             var wiltTime = data.GetSeedWiltTime(obj.Seed);
-            // todo: 不会枯萎的处理
+
             if (wiltTime == 0)
                 dispDict[ident].EstWitheredTime = 0;
             else
@@ -116,10 +115,10 @@ namespace GardeningTracker
         /// </summary>
         /// <param name="ident"></param>
         /// <param name="time"></param>
-        public void Care(GardeningIdent ident, UInt64 time)
+        public void Care(GardeningIdent ident, UInt64 time, uint guessSeed = 0)
         {
             if (!storageDict.ContainsKey(ident))
-                createFakeItem(ident);
+                createFakeItem(ident, guessSeed);
 
             lock (StorageLock)
             {
@@ -136,10 +135,10 @@ namespace GardeningTracker
         /// <param name="ident"></param>
         /// <param name="fertilizer"></param>
         /// <param name="time"></param>
-        public void Fertilize(GardeningIdent ident, uint fertilizer, UInt64 time)
+        public void Fertilize(GardeningIdent ident, uint fertilizer, UInt64 time, uint guessSeed = 0)
         {
             if (!storageDict.ContainsKey(ident))
-                createFakeItem(ident);
+                createFakeItem(ident, guessSeed);
 
             lock (StorageLock)
             {
@@ -227,6 +226,8 @@ namespace GardeningTracker
         /// </summary>
         public uint LandSubIndex { get; set; }
 
+        public uint HousingLink { get; set; }
+
         /// <summary>
         /// ActorID
         /// </summary>
@@ -234,13 +235,15 @@ namespace GardeningTracker
 
         public GardeningIdent() { }
 
-        public GardeningIdent(FFXIVLandIdent ident, UInt32 actorID, uint landObjId, uint landIndex, uint landSubIndex)
+        public GardeningIdent(FFXIVLandIdent ident, UInt32 actorID, uint landObjId, UInt32 housingLink)
         {
             House = ident;
             ObjectID = landObjId;
-            LandIndex = landIndex;
-            LandSubIndex = landSubIndex;
+            HousingLink = housingLink;
             ActorID = actorID;
+
+            LandIndex = HousingLink & 0xFF;
+            LandSubIndex = (HousingLink >> 24) & 0xFF;
         }
 
         public bool Equals(GardeningIdent other)
@@ -291,8 +294,8 @@ namespace GardeningTracker
         /// </summary>
         public List<GardeningFertilizeInfo> Fertilizes { get; set; } = new List<GardeningFertilizeInfo>();
 
-        public GardeningItem(FFXIVLandIdent ident, UInt32 actorID, uint landObjId, uint landIndex, uint landSubIndex, uint soil, uint seed, UInt64 time) :
-            this(new GardeningIdent(ident, actorID, landObjId, landIndex, landSubIndex), soil, seed, time)
+        public GardeningItem(FFXIVLandIdent ident, UInt32 actorID, uint landObjId, uint housingLink, uint soil, uint seed, UInt64 time) :
+            this(new GardeningIdent(ident, actorID, landObjId, housingLink), soil, seed, time)
         {
         }
 

@@ -16,7 +16,7 @@ namespace GardeningTracker
 
     class GardeningTracker : PropertyNotifier
     {
-        public Config Config { get; }
+        public Config Config { get; } = new Config();
 
         public SimpleLogger Logger { get; }
 
@@ -24,7 +24,7 @@ namespace GardeningTracker
 
         public GardeningStorage Storage { get; }
 
-        Action<string> actLog { get; }
+        Action<string> logInAct { get; }
 
 
         public static string DataPath => Path.Combine(Environment.CurrentDirectory, "AppData", "GardeningTracker");
@@ -37,13 +37,20 @@ namespace GardeningTracker
 
         public GardeningTracker(Action<string> actLogFunc)
         {
+            logInAct = actLogFunc;
             prepareDir();
+            Logger = new SimpleLogger(Path.Combine(DataPath, "app.log"));
 
-            Config = new Config();
-            Config.LoadSettings();
+            try
+            {
+                Config.Load();
+            }
+            catch (Exception e)
+            {
+                Logger.LogError("配置加载失败: " + e.Message);
+            }
 
-            Logger = new SimpleLogger(Path.Combine(DataPath, "app.log"), LogLevel.TRACE);
-            this.actLog = actLogFunc;
+            Logger.SetFilter(Config.LogLevel);
 
             try
             {
@@ -76,6 +83,11 @@ namespace GardeningTracker
         Dictionary<uint, FFXIVIpcObjectSpawn> ActorIDTable = new Dictionary<uint, FFXIVIpcObjectSpawn>();
 
         /// <summary>
+        /// 物体额外信息存储表
+        /// </summary>
+        Dictionary<UInt32, FFXIVIpcObjectExternData> ObjectExternalDataTable = new Dictionary<uint, FFXIVIpcObjectExternData>();
+
+        /// <summary>
         /// TargetID -> ActorID 映射表
         /// </summary>
         Dictionary<uint, uint> TargetIDTable = new Dictionary<uint, uint>();
@@ -96,6 +108,7 @@ namespace GardeningTracker
             private set
             {
                 _currentZone = value;
+                Logger.LogInfo($"切换区域: {GetZoneName(CurrentZone)}");
                 OnPropertyChanged();
             }
         }
@@ -105,6 +118,8 @@ namespace GardeningTracker
             ActorIDTable.Clear();
             TargetIDTable.Clear();
             ItemTable.Clear();
+            // 是否有必要？好像会缓存
+            ObjectExternalDataTable.Clear();
         }
 
         public void NetworkSend(byte[] message)
@@ -163,6 +178,9 @@ namespace GardeningTracker
                     case 0x0076: // 场景切换
                         parseZoneSwitch(ipc);
                         break;
+                    case 0x00E9: // 额外数据
+                        parseObjectExternalData(ipc);
+                        break;
                     default:
                         break;
                 }
@@ -171,6 +189,56 @@ namespace GardeningTracker
             {
                 Logger.LogError(e);
             }
+        }
+
+        public void SystemLogZoneChange(uint world, string area, int ward)
+        {
+            if (CurrentZone != null) return;
+
+            foreach (var item in data.MapNames)
+            {
+                if (item.Value == area)
+                {
+                    var mapID = item.Key;
+
+                    CurrentZone = new CurrentZone(new FFXIVLandIdent() {
+                        MapId = (UInt16)mapID, 
+                        WardNum = (UInt16)(ward - 1),
+                        WorldId = (UInt16)world
+                    }, false);
+                }
+            }
+        }
+
+        private void parseObjectExternalData(FFXIVIpcPacket ipc)
+        {
+            var ext = new FFXIVIpcObjectExternData(ipc.Data);
+            Logger.LogTrace(ext.ToString());
+
+            lock (ObjectExternalDataTable)
+            {
+                ObjectExternalDataTable[ext.HousingLink & 0x0000FFFF] = ext;
+            }
+        }
+
+        /// <summary>
+        /// 获取可能的种子ID
+        /// </summary>
+        /// <param name="housingLink"></param>
+        /// <returns></returns>
+        uint GetSeedID(uint housingLink)
+        {
+            var indexLink = housingLink & 0x0000FFFF;
+            var landSubID = housingLink >> 24;
+            if (!ObjectExternalDataTable.ContainsKey(indexLink)) return 0 ;
+
+            var dat = ObjectExternalDataTable[indexLink].Data;
+            var landDat = new FFXIVLandExternalData(dat);
+            Logger.LogTrace(landDat.ToString());
+
+            var index = landDat.Infos[landSubID].Seed;
+
+            return data.GetSeedIdByIndex(index);
         }
 
         /// <summary>
@@ -199,8 +267,6 @@ namespace GardeningTracker
             {
                 CurrentZone = null;
             }
-
-            Logger.LogInfo($"切换区域: {GetZoneName(CurrentZone)}");
         }
 
         /// <summary>
@@ -247,6 +313,8 @@ namespace GardeningTracker
         private void parseObjectSpawn(FFXIVIpcPacket ipc)
         {
             var obj = new FFXIVIpcObjectSpawn(ipc.Data);
+            // Logger.LogTrace(obj.ToString());
+
             lock (ActorIDTable)
             {
                 ActorIDTable[obj.ActorId] = obj;
@@ -288,7 +356,7 @@ namespace GardeningTracker
             if (!CurrentZone.IsInHouse)
                 zoneIdent.LandId = obj.HousingLandID;
 
-            return new GardeningIdent(zoneIdent, obj.ActorId, obj.ObjId, obj.HousingObjIndex, obj.HousingObjSubIndex);
+            return new GardeningIdent(zoneIdent, obj.ActorId, obj.ObjId, obj.HousingLink);
         }
 
         private string getPotPos(GardeningIdent obj)
@@ -313,6 +381,8 @@ namespace GardeningTracker
             var obj = getTargetGardeningIdent(act.TargetID);
             if (obj == null) return;
 
+            var guessSeed = GetSeedID(obj.HousingLink);
+
             string action;
             switch (act.Operation)
             {
@@ -326,7 +396,7 @@ namespace GardeningTracker
                     break;
                 case 2:
                     action = "护理";
-                    Storage.Care(obj, ipc.Timestamp);
+                    Storage.Care(obj, ipc.Timestamp, guessSeed);
                     WriteActLog(obj, GardenOperation.Care);
                     break;
                 case 3:
@@ -365,7 +435,8 @@ namespace GardeningTracker
 
             // 记录到存储区
             var fertilizerID = ItemTable[itemIndex].CatalogId;
-            Storage.Fertilize(obj, fertilizerID, ipc.Timestamp);
+            var guessSeed = GetSeedID(obj.HousingLink);
+            Storage.Fertilize(obj, fertilizerID, ipc.Timestamp, guessSeed);
 
             // 写日志
             if (!data.FertilizerNames.ContainsKey(fertilizerID))
@@ -433,7 +504,7 @@ namespace GardeningTracker
             string objID = BitConverter.GetBytes(ident.ObjectID).ToHexString();
             string housingLink = BitConverter.GetBytes((ident.LandIndex << 16) + ident.LandSubIndex).ToHexString();
             var str = $"00|{DateTime.Now.ToString("O")}|0|GardeningTracker|{ident.House.ToHexString()}|{actorID}|{objID}|{housingLink}|{(int)op}|{param1}|{param2}||";
-            actLog(str);
+            logInAct(str);
 
             // 写可读数据
             string param1Name = "";
@@ -449,12 +520,20 @@ namespace GardeningTracker
             }
 
             var str2 = $"00|{DateTime.Now.ToString("O")}|0|GardeningTracker|{getPotPos(ident)}|{op}|{param1Name}|{param2Name}||";
-            actLog(str2);
+            logInAct(str2);
         }
 
         public void DeInit()
         {
-            Storage.Save();
+            try
+            {
+                Storage.Save();
+                Config.Save();
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e);
+            }
 
             Logger.Close();
         }

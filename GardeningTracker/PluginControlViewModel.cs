@@ -1,7 +1,9 @@
 ﻿using Lotlab;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
+using System.Linq;
 using System.Windows.Data;
 
 namespace GardeningTracker
@@ -27,6 +29,26 @@ namespace GardeningTracker
         }
 
         public string CurrentZone => tracker.GetZoneName(tracker.CurrentZone);
+
+        public LogLevel LogLevel
+        {
+            get { return tracker.Config.LogLevel; }
+            set
+            {
+                tracker.Config.LogLevel = value;
+                tracker.Logger.SetFilter(value);
+                OnPropertyChanged();
+            }
+        }
+
+        public IEnumerable<LogLevel> LogLevels
+        {
+            get
+            {
+                return Enum.GetValues(typeof(LogLevel))
+                    .Cast<LogLevel>();
+            }
+        }
     }
 }
 
