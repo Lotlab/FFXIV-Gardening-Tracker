@@ -61,42 +61,42 @@ namespace GardeningTracker
         /// <summary>
         /// 土壤ID名称对应表
         /// </summary>
-        public Dictionary<uint, string> SoilNames = new Dictionary<uint, string>();
+        Dictionary<uint, string> SoilNames = new Dictionary<uint, string>();
 
         /// <summary>
         /// 肥料ID名称对应表
         /// </summary>
-        public Dictionary<uint, string> FertilizerNames = new Dictionary<uint, string>();
+        Dictionary<uint, string> FertilizerNames = new Dictionary<uint, string>();
 
         /// <summary>
         /// 种子名称表
         /// </summary>
-        public Dictionary<uint, string> SeedNames = new Dictionary<uint, string>();
+        Dictionary<uint, string> SeedNames = new Dictionary<uint, string>();
 
         /// <summary>
         /// 产物名称表
         /// </summary>
-        public Dictionary<uint, string> ProductNames = new Dictionary<uint, string>();
+        Dictionary<uint, string> ProductNames = new Dictionary<uint, string>();
 
         /// <summary>
         /// 种子产物对应表
         /// </summary>
-        public Dictionary<uint, uint> SeedProducts = new Dictionary<uint, uint>();
+        Dictionary<uint, uint> SeedProducts = new Dictionary<uint, uint>();
 
         /// <summary>
         /// 种子Index与ID对应表
         /// </summary>
-        public Dictionary<uint, uint> SeedIndexTable = new Dictionary<uint, uint>();
+        Dictionary<uint, uint> SeedIndexTable = new Dictionary<uint, uint>();
 
         /// <summary>
         /// 种子时间信息
         /// </summary>
-        public Dictionary<uint, SeedTime> SeedTimeInfos = new Dictionary<uint, SeedTime>();
+        Dictionary<uint, SeedTime> SeedTimeInfos = new Dictionary<uint, SeedTime>();
 
         /// <summary>
         /// 花盆名称表
         /// </summary>
-        public Dictionary<uint, string> PotNameDict = new Dictionary<uint, string>()
+        Dictionary<uint, string> PotNameDict = new Dictionary<uint, string>()
         {
             { 197051, "海滨花盆" },
             { 197052, "林间花盆" },
@@ -106,7 +106,7 @@ namespace GardeningTracker
         /// <summary>
         /// 园圃名称表
         /// </summary>
-        public Dictionary<uint, string> GardenRidgeNameDict = new Dictionary<uint, string>()
+        Dictionary<uint, string> GardenRidgeNameDict = new Dictionary<uint, string>()
         {
             { 2003757, "园圃" },
             // 以下的应该是未用的，不知道为啥在这里
@@ -267,6 +267,18 @@ namespace GardeningTracker
             if (SoilNames.ContainsKey(id)) return SoilNames[id];
 
             return $"未知土壤({id})";
+        }
+
+        /// <summary>
+        /// 获取肥料名称
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public string GetFertilizerName(uint id)
+        {
+            if (FertilizerNames.ContainsKey(id)) return FertilizerNames[id];
+
+            return $"未知肥料({id})";
         }
 
         /// <summary>

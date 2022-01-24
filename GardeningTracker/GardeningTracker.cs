@@ -356,7 +356,7 @@ namespace GardeningTracker
             if (!CurrentZone.IsInHouse)
                 zoneIdent.LandId = obj.HousingLandID;
 
-            return new GardeningIdent(zoneIdent, obj.ObjId, obj.HousingLink);
+            return new GardeningIdent(zoneIdent, obj.ObjId, obj.HousingLink, CurrentZone.IsInHouse);
         }
 
         private string getPotPos(GardeningIdent obj)
@@ -392,17 +392,17 @@ namespace GardeningTracker
                 case 1:
                     action = "收获";
                     Storage.Remove(obj);
-                    WriteActLog(obj, GardenOperation.Harvest);
+                    actLogOperation(obj, GardenOperation.Harvest);
                     break;
                 case 2:
                     action = "护理";
                     Storage.Care(obj, ipc.Timestamp, guessSeed);
-                    WriteActLog(obj, GardenOperation.Care);
+                    actLogOperation(obj, GardenOperation.Care);
                     break;
                 case 3:
                     action = "处理";
                     Storage.Remove(obj);
-                    WriteActLog(obj, GardenOperation.Dispose);
+                    actLogOperation(obj, GardenOperation.Dispose);
                     break;
                 default:
                     action = $"未知操作({act.Operation})";
@@ -439,13 +439,8 @@ namespace GardeningTracker
             Storage.Fertilize(obj, fertilizerID, ipc.Timestamp, guessSeed);
 
             // 写日志
-            if (!data.FertilizerNames.ContainsKey(fertilizerID))
-            {
-                Logger.LogDebug($"无法找到肥料({fertilizerID})名称");
-                return;
-            }
-            Logger.LogInfo($"对位于 {getPotPos(obj)} 的作物施了 {data.FertilizerNames[fertilizerID]}");
-            WriteActLog(obj, GardenOperation.Fertilize, fertilizerID);
+            Logger.LogInfo($"对位于 {getPotPos(obj)} 的作物施了 {data.GetFertilizerName(fertilizerID)}");
+            actLogOperation(obj, GardenOperation.Fertilize, fertilizerID);
         }
 
 
@@ -476,18 +471,12 @@ namespace GardeningTracker
             Storage.Sowing(new GardeningItem(obj, soilObjID, seedObjID, ipc.Timestamp));
 
             // 写日志
-            if (!data.SeedNames.ContainsKey(seedObjID) || !data.SoilNames.ContainsKey(soilObjID))
-            {
-                Logger.LogDebug($"无法找到种子({seedObjID})或土壤({soilObjID})名称");
-                return;
-            }
-
-            var soilName = data.SoilNames[soilObjID];
-            var seedName = data.SeedNames[seedObjID];
+            var soilName = data.GetSoilName(soilObjID);
+            var seedName = data.GetSeedName(seedObjID);
             string potPos = getPotPos(obj);
 
             Logger.LogInfo($"将{seedName}种植在了位于 {potPos} 的{soilName}中");
-            WriteActLog(obj, GardenOperation.Sow, soilObjID, seedObjID);
+            actLogOperation(obj, GardenOperation.Sow, soilObjID, seedObjID);
         }
 
         private void parseTargetSelection(FFXIVIpcPacket ipc)
@@ -497,29 +486,46 @@ namespace GardeningTracker
             Logger.LogTrace(bd.ToString());
         }
 
-        private void WriteActLog(GardeningIdent ident, GardenOperation op, uint param1 = 0, uint param2 = 0)
+        /// <summary>
+        /// 记录操作
+        /// </summary>
+        /// <param name="ident">关联信息</param>
+        /// <param name="op">操作</param>
+        /// <param name="param1">参数1</param>
+        /// <param name="param2">参数2</param>
+        private void actLogOperation(GardeningIdent ident, GardenOperation op, uint param1 = 0, uint param2 = 0)
         {
             // 写Binary数据
             string objID = BitConverter.GetBytes(ident.ObjectID).ToHexString();
-            string housingLink = BitConverter.GetBytes((ident.LandIndex << 16) + ident.LandSubIndex).ToHexString();
-            var str = $"00|{DateTime.Now.ToString("O")}|0|GardeningTracker|{ident.House.ToHexString()}|{objID}|{housingLink}|{(int)op}|{param1}|{param2}||";
-            logInAct(str);
+            string housingLink = BitConverter.GetBytes((ident.LandSubIndex << 24) + ident.LandIndex).ToHexString();
+            writeActLog("00", $"{ident.House.ToHexString()}|{objID}|{housingLink}|{(int)op}|{param1}|{param2}|");
 
             // 写可读数据
             string param1Name = "";
             string param2Name = "";
             if (op == GardenOperation.Sow)
             {
-                param1Name = data.SoilNames[param1];
-                param2Name = data.SeedNames[param2];
+                param1Name = data.GetSoilName(param1);
+                param2Name = data.GetSeedName(param2);
             }
             else if (op == GardenOperation.Fertilize)
             {
-                param1Name = data.FertilizerNames[param1];
+                param1Name = data.GetFertilizerName(param1);
             }
 
-            var str2 = $"00|{DateTime.Now.ToString("O")}|0|GardeningTracker|{getPotPos(ident)}|{op}|{param1Name}|{param2Name}||";
-            logInAct(str2);
+            writeActLog("01", $"{getPotPos(ident)}|{op}|{param1Name}|{param2Name}|");
+        }
+
+        public void WriteStorageToActLog()
+        {
+            Logger.LogDebug("同步数据");
+            var content = Storage.GetJson();
+            writeActLog("02", content);
+        }
+
+        private void writeActLog(string type, string content)
+        {
+            logInAct($"00|{DateTime.Now.ToString("O")}|0|GardeningTracker|{type}|{content}|");
         }
 
         public void DeInit()

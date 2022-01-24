@@ -58,23 +58,42 @@
                     </DataGrid.CellStyle>
                 </DataGrid>
             </GroupBox>
-            <GroupBox Header="设置" Grid.Column="1">
-                <Grid VerticalAlignment="Top">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="70"></ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition></RowDefinition>
-                        <RowDefinition></RowDefinition>
-                    </Grid.RowDefinitions>
+            <GroupBox Header="其他" Grid.Column="1" Padding="5">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Bottom" Height="30">
+                        <TextBlock TextWrapping="Wrap">
+                            种子成熟与枯萎时间来源：
+                            <LineBreak />
+                            <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="https://www.ffxivgardening.com">FFXIV Gardening</Hyperlink>
+                        </TextBlock>
+                    </StackPanel>
+                    <Grid VerticalAlignment="Top">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="70"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <Grid.Resources >
+                            <Style TargetType="Border" >
+                                <Setter Property="Padding" Value="5,10,5,10" />
+                            </Style>
+                        </Grid.Resources>
 
-                    <Label Grid.Row="0" Grid.Column="0">当前区域：</Label>
-                    <Label Grid.Row="0" Grid.Column="1" Content="{Binding CurrentZone}"/>
-                    <Label Grid.Row="1" Grid.Column="0">日志级别：</Label>
-                    <ComboBox Grid.Row="1" Grid.Column="1" SelectedItem="{Binding LogLevel}" ItemsSource="{Binding LogLevels}">
-                    </ComboBox>
-                </Grid>
+                        <Label Grid.Row="0" Grid.Column="0">当前区域：</Label>
+                        <Label Grid.Row="0" Grid.Column="1" Content="{Binding CurrentZone}"/>
+                        <Label Grid.Row="1" Grid.Column="0">日志级别：</Label>
+                        <ComboBox Grid.Row="1" Grid.Column="1" SelectedItem="{Binding LogLevel}" ItemsSource="{Binding LogLevels}"/>
+                        <Border Grid.Row="2" Grid.ColumnSpan="2">
+                            <Button Command="{Binding SyncButton}">悬浮窗数据同步</Button>
+                        </Border>
+                    </Grid>
+                </DockPanel>
+
             </GroupBox>
             <GridSplitter
                 HorizontalAlignment="Stretch"

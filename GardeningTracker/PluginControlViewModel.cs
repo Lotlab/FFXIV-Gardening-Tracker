@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Windows.Data;
+using System.Windows.Input;
 
 namespace GardeningTracker
 {
@@ -20,6 +21,10 @@ namespace GardeningTracker
             this.tracker = tracker;
 
             tracker.PropertyChanged += TrackerPropertyProxy;
+
+            SyncButton.OnExecute += () => {
+                this.tracker.WriteStorageToActLog();
+            };
         }
 
         private void TrackerPropertyProxy(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -48,6 +53,25 @@ namespace GardeningTracker
                 return Enum.GetValues(typeof(LogLevel))
                     .Cast<LogLevel>();
             }
+        }
+
+        public SimpleCommand SyncButton { get; } = new SimpleCommand();
+    }
+
+    class SimpleCommand : ICommand
+    {
+        public event EventHandler CanExecuteChanged;
+
+        public event Action OnExecute;
+
+        public bool CanExecute(object parameter)
+        {
+            return true;
+        }
+
+        public void Execute(object parameter)
+        {
+            OnExecute?.Invoke();
         }
     }
 }

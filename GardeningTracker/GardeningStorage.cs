@@ -178,13 +178,16 @@ namespace GardeningTracker
             var content = File.ReadAllText(filePath);
             var objs = JsonConvert.DeserializeObject<GardeningItem[]>(content);
 
-            dispDict.Clear();
-            storageDict.Clear();
-            Gardens.Clear();
-
-            foreach (var item in objs)
+            lock (StorageLock)
             {
-                addItem(item);
+                dispDict.Clear();
+                storageDict.Clear();
+                Gardens.Clear();
+
+                foreach (var item in objs)
+                {
+                    addItem(item);
+                }
             }
         }
 
@@ -193,10 +196,20 @@ namespace GardeningTracker
         /// </summary>
         public void Save()
         {
-            var rows = storageDict.Values;
+            string content = GetJson();
 
-            var content = JsonConvert.SerializeObject(rows);
             File.WriteAllText(filePath, content);
+        }
+
+        /// <summary>
+        /// 读取存储数据的Json
+        /// </summary>
+        /// <returns></returns>
+        public string GetJson()
+        {
+            var rows = storageDict.Values;
+            var content = JsonConvert.SerializeObject(rows);
+            return content;
         }
     }
 
@@ -230,13 +243,13 @@ namespace GardeningTracker
 
         public GardeningIdent() { }
 
-        public GardeningIdent(FFXIVLandIdent ident, uint landObjId, UInt32 housingLink)
+        public GardeningIdent(FFXIVLandIdent ident, uint landObjId, UInt32 housingLink, bool isIndoor)
         {
             House = ident;
             ObjectID = landObjId;
             HousingLink = housingLink;
 
-            LandIndex = HousingLink & 0xFF;
+            LandIndex = (uint)(HousingLink & (isIndoor ? 0xFFFF : 0x00FF));
             LandSubIndex = (HousingLink >> 24) & 0xFF;
         }
 
@@ -287,11 +300,6 @@ namespace GardeningTracker
         /// 施肥信息
         /// </summary>
         public List<GardeningFertilizeInfo> Fertilizes { get; set; } = new List<GardeningFertilizeInfo>();
-
-        public GardeningItem(FFXIVLandIdent ident, uint landObjId, uint housingLink, uint soil, uint seed, UInt64 time) :
-            this(new GardeningIdent(ident, landObjId, housingLink), soil, seed, time)
-        {
-        }
 
         public GardeningItem(GardeningIdent ident, uint soil, uint seed, UInt64 time)
         {
