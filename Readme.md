@@ -1,6 +1,14 @@
-# |FFXIV Gardening Tracker
+# FFXIV Gardening Tracker
 
 最终幻想14园艺时钟
+
+## 使用说明
+
+1. 下载后解压，使用ACT载入插件
+2. 调整FFXIV解析插件的设置，确保解析模式为`WinPcap`模式。**选择其他模式可能无法正确的处理交互信息，导致无法记录对土地的操作。**
+   - 如果之前没有使用过此模式，则可能需要安装[npcap](https://npcap.com/#download)（[下载直链](https://npcap.com/dist/npcap-1.60.exe)）
+
+3. 尝试护理植物，若能够正确记录则说明安装正确。
 
 ## 日志行文档
 
@@ -18,7 +26,7 @@
   - [22-31] RoomNum: 公寓编号
   - [32-47] TerritoryID: 区域ID
   - [48-64] ServerID: 服务器ID
-- ObjectID：物体ID。请参阅`HousingFurniture.csv`和`EObjName.csv`
+- ObjectID：物体ID，Hex格式。请参阅`HousingFurniture.csv`和`EObjName.csv`
 - HousingLink：家居位信息，Hex格式，4Bytes
   - [0-15] ObjIndex: 家具ID
   - [24-31] SubIndex: 家具子ID

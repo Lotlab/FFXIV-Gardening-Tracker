@@ -1,0 +1,3 @@
+[submodule "OverlayPlugin"]
+	path = OverlayPlugin
+	url = https://github.com/ngld/OverlayPlugin
