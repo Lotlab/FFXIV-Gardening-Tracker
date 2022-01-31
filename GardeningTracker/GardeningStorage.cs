@@ -15,14 +15,16 @@ namespace GardeningTracker
         Dictionary<GardeningIdent, GardeningItem> storageDict = new Dictionary<GardeningIdent, GardeningItem>();
         Dictionary<GardeningIdent, GardeningDisplayItem> dispDict = new Dictionary<GardeningIdent, GardeningDisplayItem>();
 
-        public ObservableCollection<GardeningDisplayItem> Gardens { get; } = new ObservableCollection<GardeningDisplayItem>();
+        public ObservableCollection<GardeningDisplayItem> Gardens { get; set; } = new ObservableCollection<GardeningDisplayItem>();
 
         public readonly object StorageLock = new object();
 
         GardeningData data { get; }
-        public GardeningStorage(GardeningData data)
+        Config config { get; }
+        public GardeningStorage(GardeningData data, Config config)
         {
             this.data = data;
+            this.config = config;
             BindingOperations.EnableCollectionSynchronization(Gardens, StorageLock);
         }
 
@@ -32,6 +34,7 @@ namespace GardeningTracker
         public void Sowing(GardeningItem item)
         {
             addItem(item);
+            AutoSave();
         }
 
         /// <summary>
@@ -127,6 +130,8 @@ namespace GardeningTracker
                 // 更新枯萎时间
                 updateEstWitheredTime(ident);
             }
+
+            AutoSave();
         }
 
         /// <summary>
@@ -146,6 +151,8 @@ namespace GardeningTracker
                 // 更新成熟时间
                 updateEstMatureTime(ident);
             }
+
+            AutoSave();
         }
 
         /// <summary>
@@ -163,19 +170,46 @@ namespace GardeningTracker
                 Gardens.Remove(dispDict[ident]);
                 dispDict.Remove(ident);
             }
+
+            AutoSave();
         }
 
         string filePath => Path.Combine(GardeningTracker.DataPath, "garden.json");
+        string backupFilePath => filePath + ".bak";
 
         /// <summary>
         /// 加载数据
         /// </summary>
         public void Load()
         {
-            if (!File.Exists(filePath))
-                return;
-
-            var content = File.ReadAllText(filePath);
+            try
+            {
+                if (File.Exists(filePath))
+                {
+                    loadFileAt(filePath);
+                    return;
+                }
+                else
+                {
+                    throw new FileNotFoundException();
+                }
+            }
+            catch
+            {
+                if (File.Exists(backupFilePath))
+                {
+                    loadFileAt(backupFilePath);
+                }
+            }
+        }
+        
+        /// <summary>
+        /// 加载位于指定位置的存储数据文件
+        /// </summary>
+        /// <param name="path"></param>
+        private void loadFileAt(string path)
+        {
+            var content = File.ReadAllText(path);
             var objs = JsonConvert.DeserializeObject<GardeningItem[]>(content);
 
             lock (StorageLock)
@@ -198,6 +232,14 @@ namespace GardeningTracker
         {
             string content = GetJson();
 
+            if (File.Exists(filePath))
+            {
+                if (File.Exists(backupFilePath))
+                    File.Delete(backupFilePath);
+
+                File.Move(filePath, backupFilePath);
+            }
+
             File.WriteAllText(filePath, content);
         }
 
@@ -210,6 +252,17 @@ namespace GardeningTracker
             var rows = storageDict.Values;
             var content = JsonConvert.SerializeObject(rows);
             return content;
+        }
+
+        /// <summary>
+        /// 判断自动保存并保存
+        /// </summary>
+        public void AutoSave()
+        {
+            if (config.AutoSave)
+            {
+                Save();
+            }
         }
     }
 
@@ -422,11 +475,6 @@ namespace GardeningTracker
             }
         }
 
-        public GardeningDisplayItem(string house, string pot, string soil, string seed, UInt64 sowTime) 
-            : this(house, pot, soil, seed, sowTime, sowTime)
-        {
-        }
-
         public GardeningDisplayItem(string house, string pot, string soil, string seed, UInt64 sowTime, UInt64 lastCare)
         {
             House = house;
@@ -438,6 +486,11 @@ namespace GardeningTracker
 
             EstMatureTime = 0;
             EstWitheredTime = 0;
+        }
+
+        public GardeningDisplayItem(GardeningItem item)
+        {
+
         }
     }
 }

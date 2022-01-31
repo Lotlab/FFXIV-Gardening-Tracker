@@ -8,6 +8,8 @@ namespace GardeningTracker
     {
         public LogLevel LogLevel { get; set; } = LogLevel.INFO;
 
+        public bool AutoSave { get; set; } = true;
+
         public Config()
         {
         }

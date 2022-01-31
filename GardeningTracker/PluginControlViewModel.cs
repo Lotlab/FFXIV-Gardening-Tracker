@@ -35,6 +35,8 @@ namespace GardeningTracker
 
         public string CurrentZone => tracker.GetZoneName(tracker.CurrentZone);
 
+        public string OverlayStatus => "未知";
+
         public LogLevel LogLevel
         {
             get { return tracker.Config.LogLevel; }
@@ -52,6 +54,16 @@ namespace GardeningTracker
             {
                 return Enum.GetValues(typeof(LogLevel))
                     .Cast<LogLevel>();
+            }
+        }
+
+        public bool AutoSave
+        {
+            get => tracker.Config.AutoSave;
+            set
+            {
+                tracker.Config.AutoSave = value;
+                OnPropertyChanged();
             }
         }
 

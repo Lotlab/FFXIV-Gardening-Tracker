@@ -234,7 +234,14 @@ namespace GardeningTracker
                 var roomNum = ident.WardNum >> 6;
                 if (roomNum != 0)
                 {
-                    str += $" {roomNum}号房间";
+                    if (roomNum == 1023)
+                    {
+                        str += $" 部队工房";
+                    }
+                    else
+                    {
+                        str += $" {roomNum}号房间";
+                    }
                 }
                 else if (ident.LandId >= 0x80)
                 {
@@ -244,7 +251,7 @@ namespace GardeningTracker
 
             return str;
         }
-    
+
         /// <summary>
         /// 获取种子名称
         /// </summary>
@@ -307,7 +314,7 @@ namespace GardeningTracker
         {
             if (!SeedTimeInfos.ContainsKey(seedId))
                 return 0;
-            
+
             return SeedTimeInfos[seedId].GrowTime * 60 * 60;
         }
 

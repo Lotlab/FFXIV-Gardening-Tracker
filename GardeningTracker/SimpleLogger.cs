@@ -26,17 +26,22 @@ namespace Lotlab
         FileStream logFile = null;
         StreamWriter logFileWriter = null;
 
+        int maxObserveLog = 1000;
+
         public ObservableCollection<LogItem> ObserveLogs { get; } = new ObservableCollection<LogItem>();
 
+        public string LogFilePath { get; }
 
-        /// <summary>
+        /// <summary>`
         /// 创建一个日志记录器
         /// </summary>
         /// <param name="file">日志文件</param>
         /// <param name="filter">默认过滤等级</param>
-        public SimpleLogger(string file, LogLevel filter = LogLevel.INFO)
+        public SimpleLogger(string file, LogLevel filter = LogLevel.INFO, int maxObserveLogs = 1000)
         {
+            LogFilePath = file;
             filterLevel = filter;
+            maxObserveLog = maxObserveLogs;
 
             try
             {
@@ -82,6 +87,9 @@ namespace Lotlab
                 logs.Add(item);
                 if (level >= filterLevel)
                 {
+                    if (ObserveLogs.Count > maxObserveLog)
+                        ObserveLogs.RemoveAt(0);
+
                     ObserveLogs.Add(item);
                 }
                 if (logFileWriter != null)
@@ -114,7 +122,12 @@ namespace Lotlab
                     foreach (var item in logs)
                     {
                         if (item.Level >= filterLevel)
+                        {
+                            if (ObserveLogs.Count > maxObserveLog)
+                                ObserveLogs.RemoveAt(0);
+
                             ObserveLogs.Add(item);
+                        }
                     }
                 }
             }

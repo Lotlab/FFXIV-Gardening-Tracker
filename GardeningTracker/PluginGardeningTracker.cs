@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace GardeningTracker
 {
-    public class PluginGardeningTracker : IActPluginV1
+    public partial class PluginGardeningTracker : IActPluginV1
     {
         IDataSubscription _ffxivDataSub = null;
 

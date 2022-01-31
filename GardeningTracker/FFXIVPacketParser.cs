@@ -351,7 +351,7 @@ namespace GardeningTracker
                 sb.Append(")");
                 if (i != 7) sb.Append(", ");
             }
-            return base.ToString();
+            return sb.ToString();
         }
     }
 

@@ -62,7 +62,7 @@ namespace GardeningTracker
             }
             Logger.LogInfo("数据文件加载成功");
 
-            Storage = new GardeningStorage(data);
+            Storage = new GardeningStorage(data, Config);
 
             try
             {
@@ -104,7 +104,7 @@ namespace GardeningTracker
         /// </summary>
         public CurrentZone CurrentZone
         {
-            get => _currentZone; 
+            get => _currentZone;
             private set
             {
                 _currentZone = value;
@@ -201,8 +201,9 @@ namespace GardeningTracker
                 {
                     var mapID = item.Key;
 
-                    CurrentZone = new CurrentZone(new FFXIVLandIdent() {
-                        MapId = (UInt16)mapID, 
+                    CurrentZone = new CurrentZone(new FFXIVLandIdent()
+                    {
+                        MapId = (UInt16)mapID,
                         WardNum = (UInt16)(ward - 1),
                         WorldId = (UInt16)world
                     }, false);
@@ -210,6 +211,10 @@ namespace GardeningTracker
             }
         }
 
+        /// <summary>
+        /// 解析扩展家具信息
+        /// </summary>
+        /// <param name="ipc"></param>
         private void parseObjectExternalData(FFXIVIpcPacket ipc)
         {
             var ext = new FFXIVIpcObjectExternData(ipc.Data);
@@ -230,7 +235,7 @@ namespace GardeningTracker
         {
             var indexLink = housingLink & 0x0000FFFF;
             var landSubID = housingLink >> 24;
-            if (!ObjectExternalDataTable.ContainsKey(indexLink)) return 0 ;
+            if (!ObjectExternalDataTable.ContainsKey(indexLink)) return 0;
 
             var dat = ObjectExternalDataTable[indexLink].Data;
             var landDat = new FFXIVLandExternalData(dat);
@@ -322,12 +327,14 @@ namespace GardeningTracker
         }
 
         /// <summary>
-        /// 获取TargetID对应的Object
+        /// 获取操作的目标花盆信息
         /// </summary>
-        /// <param name="targetID"></param>
+        /// <param name="targetID">操作TargetID</param>
         /// <returns></returns>
-        FFXIVIpcObjectSpawn getTargetObject(uint targetID)
+        GardeningIdent getTargetGardeningIdent(uint targetID)
         {
+            if (CurrentZone == null) return null;
+
             // 查找对应的ActorID
             if (!TargetIDTable.ContainsKey(targetID))
                 return null;
@@ -341,25 +348,22 @@ namespace GardeningTracker
             var obj = ActorIDTable[actorID];
 
             // 判断是否为目标物体
-            if (!data.IsGarden(obj.ObjId, out _, out _))
+            if (!data.IsGarden(obj.ObjId, out _, out var isPot))
                 return null;
 
-            return obj;
-        }
-
-        GardeningIdent getTargetGardeningIdent(uint targetID)
-        {
-            var obj = getTargetObject(targetID);
-            if (obj == null || CurrentZone == null) return null;
-
             var zoneIdent = CurrentZone.Ident;
-            if (!CurrentZone.IsInHouse)
+            if (!isPot)
                 zoneIdent.LandId = obj.HousingLandID;
 
-            return new GardeningIdent(zoneIdent, obj.ObjId, obj.HousingLink, CurrentZone.IsInHouse);
+            return new GardeningIdent(zoneIdent, obj.ObjId, obj.HousingLink, isPot);
         }
 
-        private string getPotPos(GardeningIdent obj)
+        /// <summary>
+        /// 获取花盆带位置的名字
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
+        private string getPotNamePos(GardeningIdent obj)
         {
             data.IsGarden(obj.ObjectID, out var potName, out var isPot);
             var potPos = $"{obj.LandIndex + 1}";
@@ -409,10 +413,14 @@ namespace GardeningTracker
                     break;
             }
 
-            string potPos = getPotPos(obj);
+            string potPos = getPotNamePos(obj);
             Logger.LogInfo($"{action}了 {potPos} 的作物");
         }
 
+        /// <summary>
+        /// 解析物体互动信息
+        /// </summary>
+        /// <param name="ipc"></param>
         private void parseTargetAction1(FFXIVIpcPacket ipc)
         {
             var action = new FFXIVIpcGuessTargetAction1(ipc.Data);
@@ -439,11 +447,14 @@ namespace GardeningTracker
             Storage.Fertilize(obj, fertilizerID, ipc.Timestamp, guessSeed);
 
             // 写日志
-            Logger.LogInfo($"对位于 {getPotPos(obj)} 的作物施了 {data.GetFertilizerName(fertilizerID)}");
+            Logger.LogInfo($"对位于 {getPotNamePos(obj)} 的作物施了 {data.GetFertilizerName(fertilizerID)}");
             actLogOperation(obj, GardenOperation.Fertilize, fertilizerID);
         }
 
-
+        /// <summary>
+        /// 解析物体互动信息
+        /// </summary>
+        /// <param name="ipc"></param>
         private void parseTargetAction2(FFXIVIpcPacket ipc)
         {
             var action = new FFXIVIpcGuessAction2(ipc.Data);
@@ -473,7 +484,7 @@ namespace GardeningTracker
             // 写日志
             var soilName = data.GetSoilName(soilObjID);
             var seedName = data.GetSeedName(seedObjID);
-            string potPos = getPotPos(obj);
+            string potPos = getPotNamePos(obj);
 
             Logger.LogInfo($"将{seedName}种植在了位于 {potPos} 的{soilName}中");
             actLogOperation(obj, GardenOperation.Sow, soilObjID, seedObjID);
@@ -513,12 +524,12 @@ namespace GardeningTracker
                 param1Name = data.GetFertilizerName(param1);
             }
 
-            writeActLog("01", $"{getPotPos(ident)}|{op}|{param1Name}|{param2Name}|");
+            writeActLog("01", $"{getPotNamePos(ident)}|{op}|{param1Name}|{param2Name}|");
         }
 
         public void WriteStorageToActLog()
         {
-            Logger.LogDebug("同步数据");
+            Logger.LogInfo("数据已同步");
             var content = Storage.GetJson();
             writeActLog("02", content);
         }
