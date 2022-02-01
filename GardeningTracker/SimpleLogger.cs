@@ -32,6 +32,8 @@ namespace Lotlab
 
         public string LogFilePath { get; }
 
+        public string LogFileBackupPath => LogFilePath + ".bak";
+
         /// <summary>`
         /// 创建一个日志记录器
         /// </summary>
@@ -47,6 +49,22 @@ namespace Lotlab
             {
                 if (!string.IsNullOrEmpty(file))
                 {
+                    // file backup
+                    try
+                    {
+                        if (File.Exists(LogFilePath))
+                        {
+                            if (File.Exists(LogFileBackupPath))
+                                File.Delete(LogFileBackupPath);
+
+                            File.Move(LogFilePath, LogFileBackupPath);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        LogError("日志文件备份出错：" + e.Message);
+                    }
+
                     logFile = File.Open(file, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
                     logFileWriter = new StreamWriter(logFile);
                 }
