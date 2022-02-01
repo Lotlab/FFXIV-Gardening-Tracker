@@ -643,7 +643,7 @@ namespace GardeningTracker
                 }
             }
 
-            ServerName = System.Text.UTF8Encoding.UTF8.GetString(message, offset, strEnd - offset - 1);
+            ServerName = System.Text.UTF8Encoding.UTF8.GetString(message, offset, strEnd - offset);
         }
 
         public override string ToString()

@@ -54,7 +54,7 @@ namespace GardeningTracker
                 data.IsGarden(item.Ident.ObjectID, out var name, out var isPot);
                 var houseName = data.GetZoneName(item.Ident.House);
                 var landName = data.GetGardenNamePos(item.Ident.ObjectID, item.Ident.LandIndex, item.Ident.LandSubIndex);
-                dispDict[item.Ident] = new GardeningDisplayItem(houseName, landName, data.GetSoilName(item.Soil), data.GetSeedName(item.Seed), item.SowTime, item.LastCare);
+                dispDict[item.Ident] = new GardeningDisplayItem(item.Ident, houseName, landName, data.GetSoilName(item.Soil), data.GetSeedName(item.Seed), item.SowTime, item.LastCare);
 
                 Gardens.Add(dispDict[item.Ident]);
 
@@ -405,6 +405,8 @@ namespace GardeningTracker
 
     class GardeningDisplayItem : PropertyNotifier
     {
+        public GardeningIdent Ident { get; }
+
         /// <summary>
         /// 所在房屋
         /// </summary>
@@ -475,8 +477,9 @@ namespace GardeningTracker
             }
         }
 
-        public GardeningDisplayItem(string house, string pot, string soil, string seed, UInt64 sowTime, UInt64 lastCare)
+        public GardeningDisplayItem(GardeningIdent ident, string house, string pot, string soil, string seed, UInt64 sowTime, UInt64 lastCare)
         {
+            Ident = ident;
             House = house;
             Pot = pot;
             Soil = soil;
@@ -486,11 +489,6 @@ namespace GardeningTracker
 
             EstMatureTime = 0;
             EstWitheredTime = 0;
-        }
-
-        public GardeningDisplayItem(GardeningItem item)
-        {
-
         }
     }
 }

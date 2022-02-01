@@ -27,6 +27,8 @@
             <GroupBox Header="苗圃信息" Grid.Row="0">
                 <DataGrid
                         ItemsSource="{Binding Gardens, Mode=OneWay}"
+                        SelectedItem="{Binding SelectedItem}"
+                        SelectionMode="Single"
                         VerticalGridLinesBrush="Gray"
                         HorizontalGridLinesBrush="Gray"
                         IsReadOnly="True"
@@ -56,6 +58,9 @@
                             </Setter>
                         </Style>
                     </DataGrid.CellStyle>
+                    <DataGrid.InputBindings>
+                        <KeyBinding Key="Delete" Command="{Binding DeleteCommand}"/>
+                    </DataGrid.InputBindings>
                 </DataGrid>
             </GroupBox>
             <GroupBox Header="其他" Grid.Column="1" Padding="5">

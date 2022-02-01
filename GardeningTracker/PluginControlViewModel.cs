@@ -22,8 +22,18 @@ namespace GardeningTracker
 
             tracker.PropertyChanged += TrackerPropertyProxy;
 
-            SyncButton.OnExecute += () => {
+            SyncButton.OnExecute += (obj) =>
+            {
                 this.tracker.WriteStorageToActLog();
+            };
+            DeleteCommand.OnExecute += (obj) =>
+            {
+                if (SelectedItem != null)
+                {
+                    this.tracker.Logger.LogInfo($"删除 {SelectedItem.House} {SelectedItem.Pot}");
+                    this.tracker.Storage.Remove(SelectedItem.Ident);
+                    SelectedItem = null;
+                }
             };
         }
 
@@ -68,13 +78,26 @@ namespace GardeningTracker
         }
 
         public SimpleCommand SyncButton { get; } = new SimpleCommand();
+
+        public SimpleCommand DeleteCommand { get; } = new SimpleCommand();
+
+        private GardeningDisplayItem _selectedItem = null;
+        public GardeningDisplayItem SelectedItem
+        {
+            get => _selectedItem; 
+            set
+            {
+                _selectedItem = value;
+                OnPropertyChanged();
+            }
+        }
     }
 
     class SimpleCommand : ICommand
     {
         public event EventHandler CanExecuteChanged;
 
-        public event Action OnExecute;
+        public event Action<object> OnExecute;
 
         public bool CanExecute(object parameter)
         {
@@ -83,7 +106,7 @@ namespace GardeningTracker
 
         public void Execute(object parameter)
         {
-            OnExecute?.Invoke();
+            OnExecute?.Invoke(parameter);
         }
     }
 }
