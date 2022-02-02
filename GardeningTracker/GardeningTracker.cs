@@ -23,9 +23,20 @@ namespace GardeningTracker
         GardeningData data { get; } = new GardeningData();
 
         public GardeningStorage Storage { get; }
-
         Action<string> logInAct { get; }
 
+        public event Action<IEnumerable<GardeningItem>> OnSyncContent;
+
+        bool overlayInited = false;
+        public bool OverlayInited
+        {
+            get => overlayInited;
+            set
+            {
+                overlayInited = value;
+                OnPropertyChanged();
+            }
+        }
 
         public static string DataPath => Path.Combine(Environment.CurrentDirectory, "AppData", "GardeningTracker");
 
@@ -38,6 +49,7 @@ namespace GardeningTracker
         public GardeningTracker(Action<string> actLogFunc)
         {
             logInAct = actLogFunc;
+
             prepareDir();
             Logger = new SimpleLogger(Path.Combine(DataPath, "app.log"));
 
@@ -529,9 +541,8 @@ namespace GardeningTracker
 
         public void WriteStorageToActLog()
         {
+            OnSyncContent?.Invoke(Storage.GetStorageItems());
             Logger.LogInfo("数据已同步");
-            var content = Storage.GetJson();
-            writeActLog("02", content);
         }
 
         private void writeActLog(string type, string content)

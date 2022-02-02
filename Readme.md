@@ -4,17 +4,19 @@
 
 ## 使用说明
 
-1. 下载后解压，使用ACT载入插件
-2. 调整FFXIV解析插件的设置，确保解析模式为`WinPcap`模式。**选择其他模式可能无法正确的处理交互信息，导致无法记录对土地的操作。**
+1. 下载后解压，使用ACT载入插件。
+2. 调整插件载入顺序，保证此插件在ngld OverlayPlugin之前。（即，保证此插件在OverlayPlugin上方，且在FFXIV解析插件下方）
+3. 调整FFXIV解析插件的设置，确保解析模式为`WinPcap`模式。**选择其他模式可能无法正确的处理交互信息，导致无法记录对土地的操作。**
    - 如果之前没有使用过此模式，则可能需要安装[npcap](https://npcap.com/#download)（[下载直链](https://npcap.com/dist/npcap-1.60.exe)）
+4. 尝试护理植物，若能够正确记录则说明安装正确。
 
-3. 尝试护理植物，若能够正确记录则说明安装正确。
+## 悬浮窗集成
 
-## 日志行文档
+### 日志行文档
 
 日志行头：`00|[Time]|0|GardeningTracker|[Type]|`
 
-### 00: 园圃操作
+#### 00: 园圃操作
 
 ```
 |<HousingIdent>|<ObjectID>|<HousingLink>|<Operation>|<Param1>|<Param2>||
@@ -39,7 +41,7 @@
 - Param1：参数1。施肥则为肥料ID，播种则为土壤ID
 - Param2：参数2。播种为种子ID
 
-### 01：园圃操作（文本）
+#### 01：园圃操作（文本）
 
 ```
 |<GardeningIdent>|<Operation>|<Param1>|<Param2>||
@@ -50,10 +52,13 @@
 - Param1：参数1。施肥则为肥料名，播种则为土壤名
 - Param2：参数2。播种为种子名
 
-### 02：当前数据
+### OverlayPlugin 集成文档
 
-```
-|<Content>|
-```
+#### onGardeningDataChange
 
-是当前记录的JSON数据。
+OverlayListener。园圃数据变动后下发园圃数据用。
+
+#### RequestGardeningData
+
+OverlayHandler。请求更新园圃数据，会返回园圃数据。
+

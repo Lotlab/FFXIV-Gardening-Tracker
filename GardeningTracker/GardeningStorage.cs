@@ -243,14 +243,18 @@ namespace GardeningTracker
             File.WriteAllText(filePath, content);
         }
 
+        public IEnumerable<GardeningItem> GetStorageItems()
+        {
+            return storageDict.Values;
+        }
+
         /// <summary>
         /// 读取存储数据的Json
         /// </summary>
         /// <returns></returns>
         public string GetJson()
         {
-            var rows = storageDict.Values;
-            var content = JsonConvert.SerializeObject(rows);
+            var content = JsonConvert.SerializeObject(GetStorageItems());
             return content;
         }
 

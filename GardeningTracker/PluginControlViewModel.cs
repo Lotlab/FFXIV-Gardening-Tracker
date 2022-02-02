@@ -39,13 +39,22 @@ namespace GardeningTracker
 
         private void TrackerPropertyProxy(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(tracker.CurrentZone))
-                OnPropertyChanged(nameof(CurrentZone));
+            switch (e.PropertyName)
+            {
+                case nameof(tracker.CurrentZone):
+                    OnPropertyChanged(nameof(CurrentZone));
+                    break;
+                case nameof(tracker.OverlayInited):
+                    OnPropertyChanged(nameof(OverlayStatus));
+                    break;
+                default:
+                    break;
+            }
         }
 
         public string CurrentZone => tracker.GetZoneName(tracker.CurrentZone);
 
-        public string OverlayStatus => "未知";
+        public string OverlayStatus => tracker.OverlayInited ? "已连接" : "未连接";
 
         public LogLevel LogLevel
         {
@@ -84,7 +93,7 @@ namespace GardeningTracker
         private GardeningDisplayItem _selectedItem = null;
         public GardeningDisplayItem SelectedItem
         {
-            get => _selectedItem; 
+            get => _selectedItem;
             set
             {
                 _selectedItem = value;
