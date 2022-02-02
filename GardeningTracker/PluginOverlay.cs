@@ -88,9 +88,9 @@ namespace GardeningTracker
 
         string IOverlayPreset.Type => "MiniParse";
 
-        string IOverlayPreset.Url => "#";
+        string IOverlayPreset.Url => "https://xivclock.lotlab.org/";
 
-        int[] IOverlayPreset.Size => new int[2] { 160, 300 };
+        int[] IOverlayPreset.Size => new int[2] { 300, 500 };
 
         bool IOverlayPreset.Locked => false;
 
