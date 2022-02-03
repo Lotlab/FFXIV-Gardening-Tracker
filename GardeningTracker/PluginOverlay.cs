@@ -16,6 +16,9 @@ namespace GardeningTracker
             // Register events
             var eventSource = new GardeningTrackerEventSource(container, tracker);
             tracker.OnSyncContent += eventSource.ChangeGardeningData;
+            tracker.Storage.OnDataChange += () => { 
+                eventSource.ChangeGardeningData(tracker.Storage.GetStorageItems());
+            };
 
             // Register EventSource
             registry.StartEventSource(eventSource);
@@ -27,7 +30,7 @@ namespace GardeningTracker
         }
     }
 
-    class GardeningTrackerEventSource : EventSourceBase
+    class GardeningTrackerEventSource : SimpleOverlayEventSourceBase
     {
         const string EventGardeningDataChange = "onGardeningDataChange";
         const string OnRequestGardeningData = "RequestGardeningData";
@@ -74,11 +77,6 @@ namespace GardeningTracker
         public override void SaveConfig(IPluginConfig config)
         {
             // do nothing
-        }
-
-        protected override void Update()
-        {
-            // todo:
         }
     }
 

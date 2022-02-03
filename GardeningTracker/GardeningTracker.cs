@@ -539,7 +539,7 @@ namespace GardeningTracker
             writeActLog("01", $"{getPotNamePos(ident)}|{op}|{param1Name}|{param2Name}|");
         }
 
-        public void WriteStorageToActLog()
+        public void SyncContent()
         {
             OnSyncContent?.Invoke(Storage.GetStorageItems());
             Logger.LogInfo("数据已同步");

@@ -1,6 +1,5 @@
 ﻿using System;
 using Advanced_Combat_Tracker;
-using FFXIV_ACT_Plugin.Common;
 using System.Windows.Forms;
 using System.Windows.Forms.Integration;
 using System.Text.RegularExpressions;
@@ -10,43 +9,8 @@ namespace GardeningTracker
 {
     public partial class PluginGardeningTracker : IActPluginV1
     {
-        IDataSubscription _ffxivDataSub = null;
 
-        IDataRepository _ffxivDataRepo = null;
-
-        IDataSubscription ffxivDataSub
-        {
-            get
-            {
-                if (_ffxivDataSub == null)
-                    getXIVPlugin();
-
-                return _ffxivDataSub;
-            }
-        }
-
-        IDataRepository ffxivDataRepo
-        {
-            get
-            {
-                if (_ffxivDataRepo == null)
-                    getXIVPlugin();
-
-                return _ffxivDataRepo;
-            }
-        }
-        private void getXIVPlugin()
-        {
-            var plugins = ActGlobals.oFormActMain.ActPlugins;
-            foreach (var item in plugins)
-            {
-                if (item.pluginFile.Name.ToUpper().Contains("FFXIV_ACT_PLUGIN"))
-                {
-                    _ffxivDataSub = item.pluginObj.GetType().GetProperty("DataSubscription").GetValue(item.pluginObj) as IDataSubscription;
-                    _ffxivDataRepo = item.pluginObj.GetType().GetProperty("DataRepository").GetValue(item.pluginObj) as IDataRepository;
-                }
-            }
-        }
+        FFXIVPluginProxy ffxiv = new FFXIVPluginProxy();
 
         Label lblStatus;
 
@@ -84,7 +48,9 @@ namespace GardeningTracker
             lblStatus = pluginStatusText;
             lblStatus.Text = "Plugin working.";
 
-            if (ffxivDataSub == null)
+            ffxiv.InitPlugin();
+
+            if (!ffxiv.Inited)
             {
                 lblStatus.Text = "FFXIV Act Plugin is not loading.";
                 return;
@@ -98,9 +64,9 @@ namespace GardeningTracker
             tracker = new GardeningTracker(actLog);
 
             // Register events
-            ffxivDataSub.NetworkSent += onNetworkSend;
-            ffxivDataSub.NetworkReceived += onNetworkReceive;
-            ffxivDataSub.LogLine += onLogLine;
+            ffxiv.NetworkSent += onNetworkSend;
+            ffxiv.NetworkReceived += onNetworkReceive;
+            ffxiv.LogLine += onLogLine;
 
             page.Text = "园艺时钟";
 
@@ -131,17 +97,17 @@ namespace GardeningTracker
                 return;
             }
 
-            var worldID = ffxivDataRepo.GetCombatantList()
-                .FirstOrDefault(x => x.ID == ffxivDataRepo.GetCurrentPlayerID()).CurrentWorldID;
+            var worldID = ffxiv.GetWorldID();
 
             tracker.SystemLogZoneChange(worldID, map, wardNum);
         }
 
         void pluginDeinit()
         {
-            ffxivDataSub.NetworkSent -= onNetworkSend;
-            ffxivDataSub.NetworkReceived -= onNetworkReceive;
-            ffxivDataSub.LogLine -= onLogLine;
+            ffxiv.NetworkSent -= onNetworkSend;
+            ffxiv.NetworkReceived -= onNetworkReceive;
+            ffxiv.LogLine -= onLogLine;
+            ffxiv.DeinitPlugin();
 
             tracker.DeInit();
         }

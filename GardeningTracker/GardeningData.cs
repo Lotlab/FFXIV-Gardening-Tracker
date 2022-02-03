@@ -10,6 +10,12 @@ namespace GardeningTracker
     {
         public uint Id;
         public string Name;
+
+        public FFXIVItem(uint id, string name)
+        {
+            Id = id;
+            Name = name;
+        }
     }
 
     struct FFXIVSeedInfo
@@ -17,6 +23,13 @@ namespace GardeningTracker
         public uint Index;
         public FFXIVItem Seed;
         public FFXIVItem Item;
+
+        public FFXIVSeedInfo(uint index, FFXIVItem seed, FFXIVItem item)
+        {
+            Index = index;
+            Seed = seed;
+            Item = item;
+        }
     }
 
     struct FFXIVSeedTimeInfo
@@ -24,12 +37,25 @@ namespace GardeningTracker
         public uint Index;
         public uint GrowTime;
         public uint WiltTime;
+
+        public FFXIVSeedTimeInfo(uint index, uint growTime, uint wiltTime)
+        {
+            Index = index;
+            GrowTime = growTime;
+            WiltTime = wiltTime;
+        }
     }
 
     struct SeedTime
     {
         public uint GrowTime;
         public uint WiltTime;
+
+        public SeedTime(uint growTime, uint wiltTime)
+        {
+            GrowTime = growTime;
+            WiltTime = wiltTime;
+        }
     }
 
     /// <summary>

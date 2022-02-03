@@ -24,7 +24,7 @@ namespace GardeningTracker
 
             SyncButton.OnExecute += (obj) =>
             {
-                this.tracker.WriteStorageToActLog();
+                this.tracker.SyncContent();
             };
             DeleteCommand.OnExecute += (obj) =>
             {

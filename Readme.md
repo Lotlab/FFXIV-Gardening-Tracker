@@ -2,11 +2,13 @@
 
 最终幻想14园艺时钟
 
+此插件依赖于FFXIV解析插件和OverlayPlugin悬浮窗插件，请确保实现安装了这两个插件。
+
 ## 使用说明
 
 1. 下载后解压，使用ACT载入插件。
-2. 调整插件载入顺序，保证此插件在ngld OverlayPlugin之前。（即，保证此插件在OverlayPlugin上方，且在FFXIV解析插件下方）
 3. 载入插件后，请重新加载OverlayPlugin（取消选中插件的Enable复选框并重新选中）
+3. 确认载入顺序，保证此插件在OverlayPlugin之后。（即，保证此插件在OverlayPlugin和FFXIV解析插件的下方。此行为是默认值）
 4. 调整FFXIV解析插件的设置，确保解析模式为`WinPcap`模式。**选择其他模式可能无法正确的处理交互信息，导致无法记录对土地的操作。**
    - 如果之前没有使用过此模式，则可能需要安装[npcap](https://npcap.com/#download)（[下载直链](https://npcap.com/dist/npcap-1.60.exe)）
 5. 尝试护理植物，若能够正确记录则说明安装正确。
@@ -20,7 +22,7 @@
 
 2. 为什么我无法找到名为园艺时钟的悬浮窗预设？
 
-   请按照上面说明修改OverlayPlugin的加载顺序，并尝试重新加载OverlayPlugin。
+   请尝试重新加载OverlayPlugin。
 
 3. 为什么插件加载失败，提示数据文件未找到？
 

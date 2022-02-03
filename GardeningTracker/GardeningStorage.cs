@@ -17,6 +17,8 @@ namespace GardeningTracker
 
         public ObservableCollection<GardeningDisplayItem> Gardens { get; set; } = new ObservableCollection<GardeningDisplayItem>();
 
+        public event Action OnDataChange;
+
         public readonly object StorageLock = new object();
 
         GardeningData data { get; }
@@ -34,7 +36,7 @@ namespace GardeningTracker
         public void Sowing(GardeningItem item)
         {
             addItem(item);
-            AutoSave();
+            notifyDataChange();
         }
 
         /// <summary>
@@ -131,7 +133,7 @@ namespace GardeningTracker
                 updateEstWitheredTime(ident);
             }
 
-            AutoSave();
+            notifyDataChange();
         }
 
         /// <summary>
@@ -152,7 +154,7 @@ namespace GardeningTracker
                 updateEstMatureTime(ident);
             }
 
-            AutoSave();
+            notifyDataChange();
         }
 
         /// <summary>
@@ -171,7 +173,7 @@ namespace GardeningTracker
                 dispDict.Remove(ident);
             }
 
-            AutoSave();
+            notifyDataChange();
         }
 
         string filePath => Path.Combine(GardeningTracker.DataPath, "garden.json");
@@ -256,6 +258,12 @@ namespace GardeningTracker
         {
             var content = JsonConvert.SerializeObject(GetStorageItems());
             return content;
+        }
+
+        void notifyDataChange()
+        {
+            OnDataChange?.Invoke();
+            AutoSave();
         }
 
         /// <summary>

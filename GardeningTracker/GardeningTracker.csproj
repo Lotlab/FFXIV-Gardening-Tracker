@@ -5,24 +5,17 @@
     <Copyright>Copyright ©2022 Lotlab</Copyright>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC};{09CF833E-9688-47F5-A9BF-881AC318CC80}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
-    <SignAssembly>False</SignAssembly>
-    <AssemblyOriginatorKeyFile>D:\Work\Utilities\GardeningTracker\key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
     <Reference Include="Advanced Combat Tracker">
       <HintPath>..\..\..\..\SDK\ACT\ACTv3\Advanced Combat Tracker.exe</HintPath>
       <Private>False</Private>
-    </Reference>
-    <Reference Include="FFXIV_ACT_Plugin.Common">
-      <HintPath>..\..\..\..\SDK\ACT\SDK\FFXIV_ACT_Plugin.Common.dll</HintPath>
-      <Private>False</Private>
+      <CopyLocal>False</CopyLocal>
     </Reference>
     <Reference Include="OverlayPlugin.Common">
       <HintPath>..\..\..\SDK\ACT\OverlayPluginCN\libs\OverlayPlugin.Common.dll</HintPath>
-    </Reference>
-    <Reference Include="OverlayPlugin.Core">
-      <HintPath>..\..\..\SDK\ACT\OverlayPluginCN\libs\OverlayPlugin.Core.dll</HintPath>
+      <CopyLocal>False</CopyLocal>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -45,7 +38,6 @@
   <ItemGroup>
     <PackageReference Include="Costura.Fody" Version="5.7.0">
       <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
