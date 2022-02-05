@@ -74,7 +74,7 @@ namespace GardeningTracker
 
         protected void DispatchEvent(JObject e)
         {
-            dispatcherType.GetMethod("RegisterHandler", new Type[] { typeof(JObject) })
+            dispatcherType.GetMethod("DispatchEvent", new Type[] { typeof(JObject) })
                 .Invoke(dispatcher, new object[] { e });
         }
 
