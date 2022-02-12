@@ -1,7 +1,10 @@
-﻿using Lotlab;
+﻿using Lotlab.PluginCommon;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Lotlab.PluginCommon.FFXIV.Parser;
+using GardeningTracker.Packets;
+using Lotlab.PluginCommon.FFXIV.Parser.Packets;
 
 namespace GardeningTracker
 {
@@ -16,11 +19,13 @@ namespace GardeningTracker
 
     class GardeningTracker : PropertyNotifier
     {
-        public Config Config { get; } = new Config();
+        public Config Config { get; }
 
         public SimpleLogger Logger { get; }
 
-        GardeningData data { get; } = new GardeningData();
+        GardeningData data { get; }
+
+        NetworkParser parser { get; } = new NetworkParser();
 
         public GardeningStorage Storage { get; }
         Action<string> logInAct { get; }
@@ -38,23 +43,19 @@ namespace GardeningTracker
             }
         }
 
-        public static string DataPath => Path.Combine(Environment.CurrentDirectory, "AppData", "GardeningTracker");
+        public string DataPath { get; }
 
-        void prepareDir()
-        {
-            if (!Directory.Exists(DataPath))
-                Directory.CreateDirectory(DataPath);
-        }
-
-        public GardeningTracker(Action<string> actLogFunc)
+        public GardeningTracker(Action<string> actLogFunc, string extDataPath, string appDataPath)
         {
             logInAct = actLogFunc;
+            DataPath = appDataPath;
 
-            prepareDir();
-            Logger = new SimpleLogger(Path.Combine(DataPath, "app.log"));
+            Logger = new SimpleLoggerSync(Path.Combine(DataPath, "app.log"));
 
+            // Load config
             try
             {
+                Config = new Config(Path.Combine(DataPath, "config.json"));
                 Config.Load();
             }
             catch (Exception e)
@@ -64,8 +65,22 @@ namespace GardeningTracker
 
             Logger.SetFilter(Config.LogLevel);
 
+            // load opcode
             try
             {
+                var loader = new WizardOpcodeReader();
+                var opcode = loader.ReadFile(Path.Combine(extDataPath, "opcode.txt"));
+                parser.SetOpcodes(opcode);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError("Opcode加载失败: " + e.Message);
+            }
+
+            // Read external data
+            try
+            {
+                data = new GardeningData(extDataPath);
                 data.Read();
             }
             catch (Exception e)
@@ -74,10 +89,10 @@ namespace GardeningTracker
             }
             Logger.LogInfo("数据文件加载成功");
 
-            Storage = new GardeningStorage(data, Config);
-
+            // Init storage data
             try
             {
+                Storage = new GardeningStorage(data, Config, Path.Combine(DataPath, "garden.json"));
                 Storage.Load();
             }
             catch (Exception e)
@@ -92,12 +107,12 @@ namespace GardeningTracker
         /// <summary>
         /// ActorID 映射表
         /// </summary>
-        Dictionary<uint, FFXIVIpcObjectSpawn> ActorIDTable = new Dictionary<uint, FFXIVIpcObjectSpawn>();
+        Dictionary<uint, ObjectSpawn> ActorIDTable = new Dictionary<uint, ObjectSpawn>();
 
         /// <summary>
         /// 物体额外信息存储表
         /// </summary>
-        Dictionary<UInt32, FFXIVIpcObjectExternData> ObjectExternalDataTable = new Dictionary<uint, FFXIVIpcObjectExternData>();
+        Dictionary<UInt32, ObjectExteralData> ObjectExternalDataTable = new Dictionary<uint, ObjectExteralData>();
 
         /// <summary>
         /// TargetID -> ActorID 映射表
@@ -107,7 +122,7 @@ namespace GardeningTracker
         /// <summary>
         /// 物体映射表
         /// </summary>
-        Dictionary<FFXIVItemIndexer, FFXIVIpcItemInfo> ItemTable = new Dictionary<FFXIVItemIndexer, FFXIVIpcItemInfo>();
+        Dictionary<FFXIVItemShort, ItemInfo> ItemTable = new Dictionary<FFXIVItemShort, ItemInfo>();
 
         CurrentZone _currentZone = null;
 
@@ -138,24 +153,22 @@ namespace GardeningTracker
         {
             try
             {
-                if (!FFXIVSegmentPacket.IsIpcSegment(message)) return;
+                var packet = parser.ParsePacket(message);
+                if (packet == null) return;
 
-                var segment = new FFXIVSegmentPacket(message);
-                var ipc = new FFXIVIpcPacket(segment.Data);
-
-                switch (ipc.Type)
+                switch (packet)
                 {
-                    case 0x02bd: // 目标选择
-                        parseTargetSelection(ipc);
+                    case GuessTargetBinding t1: // 目标选择
+                        parseTargetSelection(t1);
                         break;
-                    case 0x02e3: // 目标互动
-                        parseObjectInteractive(ipc);
+                    case GuessTargetAction t2: // 目标互动
+                        parseObjectInteractive(t2);
                         break;
-                    case 0x0083: // 目标互动1，施肥
-                        parseTargetAction1(ipc);
+                    case GuessTargetAction16 t3: // 目标互动1，施肥
+                        parseTargetAction1(t3);
                         break;
-                    case 0x01c7: // 目标互动2，播种
-                        parseTargetAction2(ipc);
+                    case GuessTargetAction32 t4: // 目标互动2，播种
+                        parseTargetAction2(t4);
                         break;
                     default:
                         break;
@@ -171,27 +184,25 @@ namespace GardeningTracker
         {
             try
             {
-                if (!FFXIVSegmentPacket.IsIpcSegment(message)) return;
+                var packet = parser.ParsePacket(message);
+                if (packet == null) return;
 
-                var segment = new FFXIVSegmentPacket(message);
-                var ipc = new FFXIVIpcPacket(segment.Data);
-
-                switch (ipc.Type)
+                switch (packet)
                 {
-                    case 0x0306: // 物体生成
-                        parseObjectSpawn(ipc);
+                    case ObjectSpawn t1: // 物体生成
+                        parseObjectSpawn(t1);
                         break;
-                    case 0x0305: // 物品信息
-                        parseItemInfo(ipc);
+                    case ItemInfo t2: // 物品信息
+                        parseItemInfo(t2);
                         break;
-                    case 0x008b: // 目标确认
-                        parseTargetConfirm(ipc);
+                    case GuessTargetConfirm t3: // 目标确认
+                        parseTargetConfirm(t3);
                         break;
-                    case 0x0076: // 场景切换
-                        parseZoneSwitch(ipc);
+                    case GuessZoneInto t4: // 场景切换
+                        parseZoneSwitch(t4);
                         break;
-                    case 0x00E9: // 额外数据
-                        parseObjectExternalData(ipc);
+                    case ObjectExteralData t5: // 额外数据
+                        parseObjectExternalData(t5);
                         break;
                     default:
                         break;
@@ -227,14 +238,13 @@ namespace GardeningTracker
         /// 解析扩展家具信息
         /// </summary>
         /// <param name="ipc"></param>
-        private void parseObjectExternalData(FFXIVIpcPacket ipc)
+        private void parseObjectExternalData(ObjectExteralData ext)
         {
-            var ext = new FFXIVIpcObjectExternData(ipc.Data);
             Logger.LogTrace(ext.ToString());
 
             lock (ObjectExternalDataTable)
             {
-                ObjectExternalDataTable[ext.HousingLink & 0x0000FFFF] = ext;
+                ObjectExternalDataTable[ext.Value.housingLink & 0x0000FFFF] = ext;
             }
         }
 
@@ -249,8 +259,8 @@ namespace GardeningTracker
             var landSubID = housingLink >> 24;
             if (!ObjectExternalDataTable.ContainsKey(indexLink)) return 0;
 
-            var dat = ObjectExternalDataTable[indexLink].Data;
-            var landDat = new FFXIVLandExternalData(dat);
+            var dat = ObjectExternalDataTable[indexLink].Value.data;
+            var landDat = parser.ParseAsPacket<ObjectExternalDataLand>(dat);
             Logger.LogTrace(landDat.ToString());
 
             var index = landDat.Infos[landSubID].Seed;
@@ -262,23 +272,22 @@ namespace GardeningTracker
         /// 解析区域切换信息
         /// </summary>
         /// <param name="ipc"></param>
-        private void parseZoneSwitch(FFXIVIpcPacket ipc)
+        private void parseZoneSwitch(GuessZoneInto zoneInto)
         {
             // 切换区域
-            var zoneInto = new FFXIVIpcGuessZoneInto(ipc.Data);
             Logger.LogTrace(zoneInto.ToString());
 
             // 清空交互信息
             clearActorTable();
 
             // 解析区域信息
-            if (zoneInto.House.WorldId != 0xFFFF)
+            if (zoneInto.House.worldId != 0xFFFF)
             {
-                CurrentZone = new CurrentZone(zoneInto.House, true);
+                CurrentZone = new CurrentZone(new FFXIVLandIdent(zoneInto.House), true);
             }
-            else if (zoneInto.Area.WorldId != 0xFFFF)
+            else if (zoneInto.Area.worldId != 0xFFFF)
             {
-                CurrentZone = new CurrentZone(zoneInto.Area, false);
+                CurrentZone = new CurrentZone(new FFXIVLandIdent(zoneInto.Area), false);
             }
             else
             {
@@ -299,12 +308,11 @@ namespace GardeningTracker
             return data.GetZoneName(zone.Ident, zone.IsInHouse);
         }
 
-        private void parseTargetConfirm(FFXIVIpcPacket ipc)
+        private void parseTargetConfirm(GuessTargetConfirm cf)
         {
             // 接收到交互确认信息
             // 存储物体的TargetID与ActorID的对应关系
-            var cf = new FFXIVIpcGuessTargetConfirm(ipc.Data);
-            TargetIDTable[cf.TargetID] = cf.ActorID;
+            TargetIDTable[cf.Value.targetID] = cf.Value.actorID;
 
             Logger.LogTrace(cf.ToString());
         }
@@ -313,12 +321,11 @@ namespace GardeningTracker
         /// 解析并存储物体信息
         /// </summary>
         /// <param name="ipc"></param>
-        private void parseItemInfo(FFXIVIpcPacket ipc)
+        private void parseItemInfo(ItemInfo item)
         {
-            var item = new FFXIVIpcItemInfo(ipc.Data);
             lock (ItemTable)
             {
-                ItemTable[new FFXIVItemIndexer() { ContainerID = item.ContainerId, SlotID = item.Slot }] = item;
+                ItemTable[new FFXIVItemShort() { containerID = item.Value.containerId, slotID = item.Value.slot }] = item;
             }
         }
 
@@ -327,14 +334,13 @@ namespace GardeningTracker
         /// 存储物体ActorID与物体本身对应关系
         /// </summary>
         /// <param name="ipc"></param>
-        private void parseObjectSpawn(FFXIVIpcPacket ipc)
+        private void parseObjectSpawn(ObjectSpawn obj)
         {
-            var obj = new FFXIVIpcObjectSpawn(ipc.Data);
             // Logger.LogTrace(obj.ToString());
 
             lock (ActorIDTable)
             {
-                ActorIDTable[obj.ActorId] = obj;
+                ActorIDTable[obj.Value.actorId] = obj;
             }
         }
 
@@ -360,14 +366,14 @@ namespace GardeningTracker
             var obj = ActorIDTable[actorID];
 
             // 判断是否为目标物体
-            if (!data.IsGarden(obj.ObjId, out _, out var isPot))
+            if (!data.IsGarden(obj.Value.objId, out _, out var isPot))
                 return null;
 
             var zoneIdent = CurrentZone.Ident;
             if (!isPot)
                 zoneIdent.LandId = obj.HousingLandID;
 
-            return new GardeningIdent(zoneIdent, obj.ObjId, obj.HousingLink, isPot);
+            return new GardeningIdent(zoneIdent, obj.Value.objId, obj.Value.housingLink, isPot);
         }
 
         /// <summary>
@@ -389,18 +395,16 @@ namespace GardeningTracker
         /// 解析物体互动信息
         /// </summary>
         /// <param name="ipc"></param>
-        private void parseObjectInteractive(FFXIVIpcPacket ipc)
+        private void parseObjectInteractive(GuessTargetAction act)
         {
-            var act = new FFXIVIpcGuessTargetAction(ipc.Data);
             Logger.LogTrace(act.ToString());
-
-            var obj = getTargetGardeningIdent(act.TargetID);
+            var obj = getTargetGardeningIdent(act.Value.targetID);
             if (obj == null) return;
 
             var guessSeed = GetSeedID(obj.HousingLink);
 
             string action;
-            switch (act.Operation)
+            switch (act.Value.operation)
             {
                 case 0:
                     action = "查看";
@@ -412,7 +416,7 @@ namespace GardeningTracker
                     break;
                 case 2:
                     action = "护理";
-                    Storage.Care(obj, ipc.Timestamp, guessSeed);
+                    Storage.Care(obj, act.Value.ipc.timestamp, guessSeed);
                     actLogOperation(obj, GardenOperation.Care);
                     break;
                 case 3:
@@ -421,7 +425,7 @@ namespace GardeningTracker
                     actLogOperation(obj, GardenOperation.Dispose);
                     break;
                 default:
-                    action = $"未知操作({act.Operation})";
+                    action = $"未知操作({act.Value.operation})";
                     break;
             }
 
@@ -433,30 +437,28 @@ namespace GardeningTracker
         /// 解析物体互动信息
         /// </summary>
         /// <param name="ipc"></param>
-        private void parseTargetAction1(FFXIVIpcPacket ipc)
+        private void parseTargetAction1(GuessTargetAction16 act)
         {
-            var action = new FFXIVIpcGuessTargetAction1(ipc.Data);
-            Logger.LogTrace(action.ToString());
-
-            var obj = getTargetGardeningIdent(action.TargetID);
+            Logger.LogTrace(act.ToString());
+            var obj = getTargetGardeningIdent(act.Value.targetID);
             if (obj == null) return;
 
             // 解析施肥操作
-            var fertParam = new FFXIVIpcActionParamFertilize(action.Param);
+            var fertParam = parser.ParseAsPacket<TargetAction16Fertilize>(act.Value.param);
             Logger.LogTrace(fertParam.ToString());
 
             // 查找施肥物体
-            var itemIndex = new FFXIVItemIndexer(fertParam.Fertilizer);
+            var itemIndex = fertParam.fertilizer.GetShort();
             if (!ItemTable.ContainsKey(itemIndex))
             {
-                Logger.LogDebug($"无法找到施放的肥料：{fertParam.Fertilizer}");
+                Logger.LogDebug($"无法找到施放的肥料：{fertParam.fertilizer}");
                 return;
             }
 
             // 记录到存储区
-            var fertilizerID = ItemTable[itemIndex].CatalogId;
+            var fertilizerID = ItemTable[itemIndex].Value.catalogId;
             var guessSeed = GetSeedID(obj.HousingLink);
-            Storage.Fertilize(obj, fertilizerID, ipc.Timestamp, guessSeed);
+            Storage.Fertilize(obj, fertilizerID, act.Value.ipc.timestamp, guessSeed);
 
             // 写日志
             Logger.LogInfo($"对位于 {getPotNamePos(obj)} 的作物施了 {data.GetFertilizerName(fertilizerID)}");
@@ -467,21 +469,20 @@ namespace GardeningTracker
         /// 解析物体互动信息
         /// </summary>
         /// <param name="ipc"></param>
-        private void parseTargetAction2(FFXIVIpcPacket ipc)
+        private void parseTargetAction2(GuessTargetAction32 act)
         {
-            var action = new FFXIVIpcGuessAction2(ipc.Data);
-            Logger.LogTrace(action.ToString());
+            Logger.LogTrace(act.ToString());
 
-            var obj = getTargetGardeningIdent(action.TargetID);
+            var obj = getTargetGardeningIdent(act.Value.targetID);
             if (obj == null) return;
 
             // 解析播种操作
-            var seedParam = new FFXIVIpcActionParamSowing(action.Param);
+            var seedParam = parser.ParseAsPacket<TargetAction32Sowing>(act.Value.param);
             Logger.LogTrace(seedParam.ToString());
 
             // 查找播种物体
-            var soilIndex = new FFXIVItemIndexer(seedParam.Soil);
-            var seedIndex = new FFXIVItemIndexer(seedParam.Seed);
+            var soilIndex = seedParam.soil.GetShort();
+            var seedIndex = seedParam.seed.GetShort();
             if (!ItemTable.ContainsKey(soilIndex) || !ItemTable.ContainsKey(seedIndex))
             {
                 Logger.LogDebug($"无法找到播种对应的物体： {soilIndex}, {seedIndex}");
@@ -489,9 +490,9 @@ namespace GardeningTracker
             }
 
             // 记录到存储区
-            var soilObjID = ItemTable[soilIndex].CatalogId;
-            var seedObjID = ItemTable[seedIndex].CatalogId;
-            Storage.Sowing(new GardeningItem(obj, soilObjID, seedObjID, ipc.Timestamp));
+            var soilObjID = ItemTable[soilIndex].Value.catalogId;
+            var seedObjID = ItemTable[seedIndex].Value.catalogId;
+            Storage.Sowing(new GardeningItem(obj, soilObjID, seedObjID, act.Value.ipc.timestamp));
 
             // 写日志
             var soilName = data.GetSoilName(soilObjID);
@@ -502,11 +503,10 @@ namespace GardeningTracker
             actLogOperation(obj, GardenOperation.Sow, soilObjID, seedObjID);
         }
 
-        private void parseTargetSelection(FFXIVIpcPacket ipc)
+        private void parseTargetSelection(GuessTargetBinding packet)
         {
             // 选择目标
-            var bd = new FFXIVIpcGuessTargetBinding(ipc.Data);
-            Logger.LogTrace(bd.ToString());
+            Logger.LogTrace(packet.ToString());
         }
 
         /// <summary>
@@ -519,9 +519,8 @@ namespace GardeningTracker
         private void actLogOperation(GardeningIdent ident, GardenOperation op, uint param1 = 0, uint param2 = 0)
         {
             // 写Binary数据
-            string objID = BitConverter.GetBytes(ident.ObjectID).ToHexString();
-            string housingLink = BitConverter.GetBytes((ident.LandSubIndex << 24) + ident.LandIndex).ToHexString();
-            writeActLog("00", $"{ident.House.ToHexString()}|{objID}|{housingLink}|{(int)op}|{param1}|{param2}|");
+            var housingLink = (ident.LandSubIndex << 24) + ident.LandIndex;
+            writeActLog("00", $"{ident.House.WorldId}|{ident.House.MapId}|{ident.House.WardNum}|{ident.House.LandId}|{ident.ObjectID}|{housingLink}|{(int)op}|{param1}|{param2}|");
 
             // 写可读数据
             string param1Name = "";

@@ -7,6 +7,9 @@ using System.Threading;
 using System.Windows.Data;
 using System.Windows.Threading;
 using Newtonsoft.Json;
+using Lotlab.PluginCommon;
+using Lotlab.PluginCommon.FFXIV.Parser.Packets;
+using Lotlab.PluginCommon.FFXIV.Parser;
 
 namespace GardeningTracker
 {
@@ -23,10 +26,11 @@ namespace GardeningTracker
 
         GardeningData data { get; }
         Config config { get; }
-        public GardeningStorage(GardeningData data, Config config)
+        public GardeningStorage(GardeningData data, Config config, string saveFilePath)
         {
             this.data = data;
             this.config = config;
+            filePath = saveFilePath;
             BindingOperations.EnableCollectionSynchronization(Gardens, StorageLock);
         }
 
@@ -176,7 +180,7 @@ namespace GardeningTracker
             notifyDataChange();
         }
 
-        string filePath => Path.Combine(GardeningTracker.DataPath, "garden.json");
+        string filePath { get; }
         string backupFilePath => filePath + ".bak";
 
         /// <summary>
@@ -278,6 +282,56 @@ namespace GardeningTracker
         }
     }
 
+    struct FFXIVLandIdent : IEquatable<FFXIVLandIdent>
+    {
+        public UInt16 LandId;
+        public UInt16 WardNum;
+        public UInt16 MapId;
+        public UInt16 WorldId;
+
+        public FFXIVLandIdent(LandIdent ident)
+        {
+            LandId = ident.landId;
+            WardNum = ident.wardNum;
+            MapId = ident.territoryTypeId;
+            WorldId = ident.worldId;
+        }
+
+        public override string ToString()
+        {
+            return $"({WorldId}, {MapId}, {WardNum}, {LandId})";
+        }
+
+        public string ToHexString()
+        {
+            UInt64 val = (UInt64)LandId + ((UInt64)WardNum << 16) + ((UInt64)MapId << 32) + ((UInt64)WorldId << 48);
+            var bytes = BitConverter.GetBytes(val);
+            return bytes.ToHexString();
+        }
+
+        public bool Equals(FFXIVLandIdent other)
+        {
+            if (ReferenceEquals(this, other)) return true;
+
+            return LandId == other.LandId && WardNum == other.WardNum && MapId == other.MapId && WorldId == other.WorldId;
+        }
+
+        public override bool Equals(object obj) => this.Equals((FFXIVLandIdent)obj);
+
+        public override int GetHashCode()
+        {
+            return (LandId, WardNum, MapId, WorldId).GetHashCode();
+        }
+
+        public static bool operator ==(FFXIVLandIdent a, FFXIVLandIdent b)
+        {
+            return a.Equals(b);
+        }
+        public static bool operator !=(FFXIVLandIdent a, FFXIVLandIdent b)
+        {
+            return !a.Equals(b);
+        }
+    }
 
     /// <summary>
     /// 土地标志信息
@@ -323,7 +377,7 @@ namespace GardeningTracker
             if (ReferenceEquals(other, null)) return false;
             if (ReferenceEquals(this, other)) return true;
 
-            return House == other.House && ObjectID == other.ObjectID && LandIndex == other.LandIndex && LandSubIndex == other.LandSubIndex;
+            return House.Equals(other.House) && ObjectID == other.ObjectID && LandIndex == other.LandIndex && LandSubIndex == other.LandSubIndex;
         }
 
         public override bool Equals(object obj) => Equals(obj as GardeningIdent);

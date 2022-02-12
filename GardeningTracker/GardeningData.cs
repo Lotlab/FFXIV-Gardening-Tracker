@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
 using Newtonsoft.Json;
 using System.Collections.Generic;
+using Lotlab.PluginCommon.FFXIV.Parser.Packets;
 
 namespace GardeningTracker
 {
@@ -63,23 +64,16 @@ namespace GardeningTracker
     /// </summary>
     class GardeningData
     {
-        public static string AssemblyDirectory
+        string DataDir { get; }
+
+        public GardeningData(string dataDir)
         {
-            get
-            {
-                string codeBase = Assembly.GetAssembly(typeof(GardeningData)).CodeBase;
-                UriBuilder uri = new UriBuilder(codeBase);
-                string path = Uri.UnescapeDataString(uri.Path);
-                return Path.GetDirectoryName(path);
-            }
+            DataDir = dataDir;
         }
 
         T readJsonDataFile<T>(string name)
         {
-            var plugin = PluginGardeningTracker.ActPlugin;
-            var dir = plugin != null ? Path.GetDirectoryName(plugin.pluginFile.FullName) : AssemblyDirectory;
-
-            var filePath = Path.Combine(dir, "data", name);
+            var filePath = Path.Combine(DataDir, name);
             var content = File.ReadAllText(filePath);
             return JsonConvert.DeserializeObject<T>(content);
         }

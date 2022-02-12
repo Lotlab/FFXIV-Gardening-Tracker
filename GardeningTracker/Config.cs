@@ -1,4 +1,4 @@
-﻿using Lotlab;
+﻿using Lotlab.PluginCommon;
 using System.IO;
 using Newtonsoft.Json;
 
@@ -10,11 +10,12 @@ namespace GardeningTracker
 
         public bool AutoSave { get; set; } = true;
 
-        public Config()
+        public Config(string fileName)
         {
+            configFile = fileName;
         }
 
-        string configFile => Path.Combine(GardeningTracker.DataPath, "config.json");
+        string configFile { get; }
 
         /// <summary>
         /// 载入配置文件

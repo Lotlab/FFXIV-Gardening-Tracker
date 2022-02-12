@@ -1,0 +1,12 @@
+// Client side
+GuessTargetBinding = 0x02bd,
+GuessTargetAction = 0x02e3,
+GuessTargetAction16 = 0x0083,
+GuessTargetAction32 = 0x01c7,
+
+// Server side
+ObjectSpawn = 0x0306,
+ItemInfo = 0x0305,
+GuessTargetConfirm = 0x008b,
+GuessZoneInto = 0x0076,
+ObjectExteralData = 0x00E9,

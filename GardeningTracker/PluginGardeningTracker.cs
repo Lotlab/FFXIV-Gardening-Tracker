@@ -4,13 +4,15 @@ using System.Windows.Forms;
 using System.Windows.Forms.Integration;
 using System.Text.RegularExpressions;
 using System.Linq;
+using Lotlab.PluginCommon.FFXIV;
+using System.IO;
 
 namespace GardeningTracker
 {
     public partial class PluginGardeningTracker : IActPluginV1
     {
 
-        FFXIVPluginProxy ffxiv = new FFXIVPluginProxy();
+        ACTPluginProxy ffxiv;
 
         Label lblStatus;
 
@@ -48,9 +50,16 @@ namespace GardeningTracker
             lblStatus = pluginStatusText;
             lblStatus.Text = "Plugin working.";
 
-            ffxiv.InitPlugin();
+            var plugins = ActGlobals.oFormActMain.ActPlugins;
+            foreach (var item in plugins)
+            {
+                if (item.pluginFile.Name.ToUpper().Contains("FFXIV_ACT_PLUGIN") && item.pluginObj != null)
+                {
+                    ffxiv = new ACTPluginProxy(item.pluginObj);
+                }
+            }
 
-            if (!ffxiv.Inited)
+            if (ffxiv == null || !ffxiv.PluginStarted)
             {
                 lblStatus.Text = "FFXIV Act Plugin is not loading.";
                 return;
@@ -61,12 +70,16 @@ namespace GardeningTracker
 
         void pluginInit(TabPage page)
         {
-            tracker = new GardeningTracker(actLog);
+            var asmDir = Path.Combine(ActPlugin.pluginFile.DirectoryName, "data");
+            var appDataDir = Path.Combine(ActGlobals.oFormActMain.AppDataFolder.Parent.FullName, "GardeningTracker");
+            prepareDir(appDataDir);
+
+            tracker = new GardeningTracker(actLog, asmDir, appDataDir);
 
             // Register events
-            ffxiv.NetworkSent += onNetworkSend;
-            ffxiv.NetworkReceived += onNetworkReceive;
-            ffxiv.LogLine += onLogLine;
+            ffxiv.DataSubscription.NetworkSent += onNetworkSend;
+            ffxiv.DataSubscription.NetworkReceived += onNetworkReceive;
+            ffxiv.DataSubscription.LogLine += onLogLine;
 
             page.Text = "园艺时钟";
 
@@ -97,19 +110,33 @@ namespace GardeningTracker
                 return;
             }
 
-            var worldID = ffxiv.GetWorldID();
+            tracker.SystemLogZoneChange(GetWorldID(), map, wardNum);
+        }
 
-            tracker.SystemLogZoneChange(worldID, map, wardNum);
+        uint GetWorldID()
+        {
+            var list = ffxiv.DataRepository.GetCombatantList();
+            var currentID = ffxiv.DataRepository.GetCurrentPlayerID();
+            foreach (var item in list)
+            {
+                if (item.ID == currentID)
+                    return item.CurrentWorldID;
+            }
+
+            return 0;
         }
 
         void pluginDeinit()
         {
-            ffxiv.NetworkSent -= onNetworkSend;
-            ffxiv.NetworkReceived -= onNetworkReceive;
-            ffxiv.LogLine -= onLogLine;
-            ffxiv.DeinitPlugin();
+            if (ffxiv != null)
+            {
+                ffxiv.DataSubscription.NetworkSent -= onNetworkSend;
+                ffxiv.DataSubscription.NetworkReceived -= onNetworkReceive;
+                ffxiv.DataSubscription.LogLine -= onLogLine;
+                ffxiv = null;
+            }
 
-            tracker.DeInit();
+            tracker?.DeInit();
         }
 
         private void onNetworkSend(string connection, long epoch, byte[] message)
@@ -125,6 +152,12 @@ namespace GardeningTracker
         private void actLog(string str)
         {
             ActGlobals.oFormActMain.ParseRawLogLine(false, DateTime.Now, str);
+        }
+
+        void prepareDir(string path)
+        {
+            if (!Directory.Exists(path))
+                Directory.CreateDirectory(path);
         }
     }
 }

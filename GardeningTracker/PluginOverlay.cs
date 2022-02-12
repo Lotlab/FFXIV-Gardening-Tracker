@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using Newtonsoft.Json.Linq;
 using RainbowMage.OverlayPlugin;
+using Lotlab.PluginCommon.Overlay;
 
 namespace GardeningTracker
 {
@@ -30,7 +31,7 @@ namespace GardeningTracker
         }
     }
 
-    class GardeningTrackerEventSource : SimpleOverlayEventSourceBase
+    class GardeningTrackerEventSource : EventSourceBase
     {
         const string EventGardeningDataChange = "onGardeningDataChange";
         const string OnRequestGardeningData = "RequestGardeningData";
