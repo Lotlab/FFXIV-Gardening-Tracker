@@ -17,8 +17,20 @@ namespace GardeningTracker
             // Register events
             var eventSource = new GardeningTrackerEventSource(container, tracker);
             tracker.OnSyncContent += eventSource.ChangeGardeningData;
-            tracker.Storage.OnDataChange += () => { 
+            tracker.Storage.OnDataChange += () =>
+            {
                 eventSource.ChangeGardeningData(tracker.Storage.GetStorageItems());
+            };
+            tracker.PropertyChanged += (sender, e) =>
+            {
+                switch (e.PropertyName)
+                {
+                    case nameof(tracker.CurrentZone):
+                        eventSource.ChangeGardeningZone(tracker.CurrentZone);
+                        break;
+                    default:
+                        break;
+                }
             };
 
             // Register EventSource
@@ -34,6 +46,7 @@ namespace GardeningTracker
     class GardeningTrackerEventSource : EventSourceBase
     {
         const string EventGardeningDataChange = "onGardeningDataChange";
+        const string EventGardeningZoneChange = "onGardeningZoneChange";
         const string OnRequestGardeningData = "RequestGardeningData";
 
         GardeningTracker tracker { get; }
@@ -46,11 +59,14 @@ namespace GardeningTracker
 
             RegisterEventTypes(new List<string>()
             {
-                EventGardeningDataChange
+                EventGardeningDataChange,
+                EventGardeningZoneChange
             });
 
-            RegisterEventHandler(OnRequestGardeningData, (obj) => {
-                return JObject.FromObject(new {
+            RegisterEventHandler(OnRequestGardeningData, (obj) =>
+            {
+                return JObject.FromObject(new
+                {
                     garden = tracker.Storage.GetStorageItems()
                 });
             });
@@ -62,6 +78,15 @@ namespace GardeningTracker
             {
                 type = EventGardeningDataChange,
                 data = items
+            }));
+        }
+
+        public void ChangeGardeningZone(CurrentZone zone)
+        {
+            DispatchEvent(JObject.FromObject(new
+            {
+                type = EventGardeningZoneChange,
+                data = zone
             }));
         }
 
