@@ -39,6 +39,9 @@ namespace GardeningTracker
         /// </summary>
         public void Sowing(GardeningItem item)
         {
+            if (item.SowTime == 0)
+                item.SowTime = (ulong)DateTimeOffset.Now.ToUnixTimeSeconds();
+
             addItem(item);
             notifyDataChange();
         }
@@ -113,7 +116,7 @@ namespace GardeningTracker
             var obj = storageDict[ident];
             var wiltTime = data.GetSeedWiltTime(obj.Seed);
 
-            if (wiltTime == 0)
+            if (wiltTime == 0 || obj.LastCare == 0)
                 dispDict[ident].EstWitheredTime = 0;
             else
                 dispDict[ident].EstWitheredTime = obj.LastCare + wiltTime + 24 * 60 * 60;
@@ -129,8 +132,18 @@ namespace GardeningTracker
             if (!storageDict.ContainsKey(ident))
                 createFakeItem(ident, guessSeed);
 
+            if (time == 0)
+                time = (ulong)DateTimeOffset.Now.ToUnixTimeSeconds();
+
             lock (StorageLock)
             {
+                // 如果之前没获取到正确的种子，那么在这里获取
+                if (storageDict[ident].Seed == 0 && guessSeed != 0)
+                {
+                    storageDict[ident].Seed = guessSeed;
+                    dispDict[ident].Seed = data.GetSeedName(guessSeed);
+                }
+
                 storageDict[ident].Care(time);
                 dispDict[ident].LastCare = time;
                 // 更新枯萎时间
@@ -150,6 +163,9 @@ namespace GardeningTracker
         {
             if (!storageDict.ContainsKey(ident))
                 createFakeItem(ident, guessSeed);
+
+            if (time == 0)
+                time = (ulong)DateTimeOffset.Now.ToUnixTimeSeconds();
 
             lock (StorageLock)
             {
@@ -208,7 +224,7 @@ namespace GardeningTracker
                 }
             }
         }
-        
+
         /// <summary>
         /// 加载位于指定位置的存储数据文件
         /// </summary>
@@ -491,7 +507,7 @@ namespace GardeningTracker
         /// <summary>
         /// 播种的种子
         /// </summary>
-        public string Seed { get; }
+        public string Seed { get; set; }
 
         /// <summary>
         /// 播种时间
