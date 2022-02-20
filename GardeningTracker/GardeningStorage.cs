@@ -70,6 +70,7 @@ namespace GardeningTracker
                 // 成熟时间计算
                 updateEstMatureTime(item.Ident);
                 updateEstWitheredTime(item.Ident);
+                updateEstColor(item.Ident);
             }
 
         }
@@ -81,6 +82,26 @@ namespace GardeningTracker
         private void createFakeItem(GardeningIdent ident, uint seed = 0)
         {
             addItem(new GardeningItem(ident, 0, seed, 0));
+        }
+
+        /// <summary>
+        /// 更新估计的颜色
+        /// </summary>
+        /// <param name="ident"></param>
+        private void updateEstColor(GardeningIdent ident)
+        {
+            var obj = storageDict[ident];
+            var color = "";
+            foreach (var item in obj.Fertilizes)
+            {
+                var name = data.GetFertilizerColor(item.Type);
+                if (name != "")
+                {
+                    if (color != "") color += ", ";
+                    color += name;
+                }
+            }
+            dispDict[ident].Color = color;
         }
 
         /// <summary>
@@ -148,6 +169,7 @@ namespace GardeningTracker
                 dispDict[ident].LastCare = time;
                 // 更新枯萎时间
                 updateEstWitheredTime(ident);
+                updateEstColor(ident);
             }
 
             notifyDataChange();
@@ -510,6 +532,11 @@ namespace GardeningTracker
         public string Seed { get; set; }
 
         /// <summary>
+        /// 肥料颜色
+        /// </summary>
+        public string Color { get; set; }
+
+        /// <summary>
         /// 播种时间
         /// </summary>
         public UInt64 SowTime { get; }
@@ -571,6 +598,7 @@ namespace GardeningTracker
 
             EstMatureTime = 0;
             EstWitheredTime = 0;
+            Color = "";
         }
     }
 }

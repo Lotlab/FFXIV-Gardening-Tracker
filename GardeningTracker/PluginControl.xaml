@@ -39,6 +39,7 @@
                         <DataGridTextColumn Width="1*" Header="位置" Binding="{Binding Pot}"></DataGridTextColumn>
                         <DataGridTextColumn Width="1*" Header="土壤" Binding="{Binding Soil}"></DataGridTextColumn>
                         <DataGridTextColumn Width="1*" Header="种子" Binding="{Binding Seed}"></DataGridTextColumn>
+                        <DataGridTextColumn Width="1*" Header="颜色" Binding="{Binding Color}"></DataGridTextColumn>
                         <DataGridTextColumn Width="3*" Header="播种时间" Binding="{Binding SowTime, Converter={StaticResource dateConverter}}"></DataGridTextColumn>
                         <DataGridTextColumn Width="3*" Header="上次护理时间" Binding="{Binding LastCare, Converter={StaticResource dateConverter}}"></DataGridTextColumn>
                         <DataGridTextColumn Width="3*" Header="预计枯萎时间" Binding="{Binding EstWitheredTime, Converter={StaticResource dateConverter}}"></DataGridTextColumn>
