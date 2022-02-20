@@ -34,7 +34,13 @@ namespace GardeningTracker
             };
 
             // Register EventSource
-            registry.StartEventSource(eventSource);
+            // registry.StartEventSource(eventSource);
+            // API 兼容: commit 0ff9f5e change API
+            var method = registry.GetType().GetMethod(nameof(registry.StartEventSource));
+            if (method.IsGenericMethod)
+                method = method.MakeGenericMethod(typeof(GardeningTrackerEventSource));
+            
+            method.Invoke(registry, new object[] { eventSource });
 
             // Register Overlay
             registry.RegisterOverlayPreset2(new GardeningTrackerOverlayPresent());
