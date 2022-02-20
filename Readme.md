@@ -41,15 +41,14 @@
 #### 00: 园圃操作
 
 ```
-|<HousingIdent>|<ObjectID>|<HousingLink>|<Operation>|<Param1>|<Param2>||
+|<ServerID>|<TerritoryID>|<WardNum>|<LandID>|<ObjectID>|<HousingLink>|<Operation>|<Param1>|<Param2>||
 ```
 
 - HousingIdent: 房屋信息，Hex格式，8Bytes。数据排布与Sappine的LandIdent一致
-  - [0-15] LandID: 房屋ID
-  - [16-21] WardNum: 房区ID
-  - [22-31] RoomNum: 公寓编号
-  - [32-47] TerritoryID: 区域ID
-  - [48-64] ServerID: 服务器ID
+  - LandID: 房屋ID
+  - WardNum: [0-5]房区ID, [6-15]公寓房间编号
+  - TerritoryID: 区域ID
+  - ServerID: 服务器ID
 - ObjectID：物体ID，Hex格式。请参阅`HousingFurniture.csv`和`EObjName.csv`
 - HousingLink：家居位信息，Hex格式，4Bytes
   - [0-15] ObjIndex: 家具ID
@@ -79,6 +78,10 @@
 #### onGardeningDataChange
 
 OverlayListener。园圃数据变动后下发园圃数据用。
+
+#### onGardeningZoneChange
+
+OverlayListener。当前区域变动后触发。
 
 #### RequestGardeningData
 
