@@ -256,14 +256,14 @@ namespace GardeningTracker
         uint GetSeedID(uint housingLink)
         {
             var indexLink = housingLink & 0x0000FFFF;
-            var landSubID = housingLink >> 24;
+            var landSubID = (housingLink >> 24) & 0xFF;
             if (!ObjectExternalDataTable.ContainsKey(indexLink)) return 0;
 
             var dat = ObjectExternalDataTable[indexLink].Value.data;
             var landDat = parser.ParseAsPacket<ObjectExternalDataLand>(dat);
             Logger.LogTrace(landDat.ToString());
 
-            var index = landDat.Infos[landSubID].Seed;
+            var index = landDat.Seed[landSubID];
 
             return data.GetSeedIdByIndex(index);
         }
@@ -430,7 +430,7 @@ namespace GardeningTracker
             }
 
             string potPos = getPotNamePos(obj);
-            Logger.LogInfo($"{action}了 {potPos} 的作物");
+            Logger.LogInfo($"{action}了 {potPos} 的作物({guessSeed})");
         }
 
         /// <summary>
