@@ -122,7 +122,7 @@ namespace GardeningTracker
         /// <summary>
         /// 物体映射表
         /// </summary>
-        Dictionary<FFXIVItemShort, ItemInfo> ItemTable = new Dictionary<FFXIVItemShort, ItemInfo>();
+        Dictionary<FFXIVItemShort, FFXIVIpcItemInfo> ItemTable = new Dictionary<FFXIVItemShort, FFXIVIpcItemInfo>();
 
         CurrentZone _currentZone = null;
 
@@ -193,7 +193,10 @@ namespace GardeningTracker
                         parseObjectSpawn(t1);
                         break;
                     case ItemInfo t2: // 物品信息
-                        parseItemInfo(t2);
+                        parseItemInfo(t2.Value);
+                        break;
+                    case UpdateInventorySlot t6: // 更新物品信息
+                        parseItemInfo(t6.Value);
                         break;
                     case GuessTargetConfirm t3: // 目标确认
                         parseTargetConfirm(t3);
@@ -321,11 +324,11 @@ namespace GardeningTracker
         /// 解析并存储物体信息
         /// </summary>
         /// <param name="ipc"></param>
-        private void parseItemInfo(ItemInfo item)
+        private void parseItemInfo(FFXIVIpcItemInfo item)
         {
             lock (ItemTable)
             {
-                ItemTable[new FFXIVItemShort() { containerID = item.Value.containerId, slotID = item.Value.slot }] = item;
+                ItemTable[new FFXIVItemShort() { containerID = item.containerId, slotID = item.slot }] = item;
             }
         }
 
@@ -452,11 +455,12 @@ namespace GardeningTracker
             if (!ItemTable.ContainsKey(itemIndex))
             {
                 Logger.LogDebug($"无法找到施放的肥料：{fertParam.fertilizer}");
+                dumpItemTable(); // Debug
                 return;
             }
 
             // 记录到存储区
-            var fertilizerID = ItemTable[itemIndex].Value.catalogId;
+            var fertilizerID = ItemTable[itemIndex].catalogId;
             var guessSeed = GetSeedID(obj.HousingLink);
             Storage.Fertilize(obj, fertilizerID, act.Value.ipc.timestamp, guessSeed);
 
@@ -485,13 +489,19 @@ namespace GardeningTracker
             var seedIndex = seedParam.seed.GetShort();
             if (!ItemTable.ContainsKey(soilIndex) || !ItemTable.ContainsKey(seedIndex))
             {
-                Logger.LogDebug($"无法找到播种对应的物体： {soilIndex}, {seedIndex}");
+                if (!ItemTable.ContainsKey(soilIndex))
+                    Logger.LogDebug($"无法找到播种对应的土壤： {soilIndex}");
+                
+                if (!ItemTable.ContainsKey(seedIndex))
+                    Logger.LogDebug($"无法找到播种对应的种子： {soilIndex}");
+
+                dumpItemTable(); // Debug
                 return;
             }
 
             // 记录到存储区
-            var soilObjID = ItemTable[soilIndex].Value.catalogId;
-            var seedObjID = ItemTable[seedIndex].Value.catalogId;
+            var soilObjID = ItemTable[soilIndex].catalogId;
+            var seedObjID = ItemTable[seedIndex].catalogId;
             Storage.Sowing(new GardeningItem(obj, soilObjID, seedObjID, act.Value.ipc.timestamp));
 
             // 写日志
@@ -501,6 +511,19 @@ namespace GardeningTracker
 
             Logger.LogInfo($"将{seedName}种植在了位于 {potPos} 的{soilName}中");
             actLogOperation(obj, GardenOperation.Sow, soilObjID, seedObjID);
+        }
+
+        /// <summary>
+        /// 把物品表内的物品全部打印到日志
+        /// </summary>
+        private void dumpItemTable()
+        {
+            foreach (var kv in ItemTable)
+            {
+                var item = kv.Value;
+                var str = $"Item {item.catalogId}@({item.containerSequence}, {item.containerId}, {item.slot}), Qty: {item.quantity}, Hq: {item.hqFlag}, Cond: {item.condition}";
+                Logger.LogTrace(str);
+            }
         }
 
         private void parseTargetSelection(GuessTargetBinding packet)

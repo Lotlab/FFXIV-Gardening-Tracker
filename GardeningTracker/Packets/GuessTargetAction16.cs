@@ -35,5 +35,10 @@ namespace GardeningTracker.Packets
         public UInt32 unknown1;
         public FFXIVItemLong fertilizer;
         public UInt32 padding;
+
+        public override string ToString()
+        {
+            return $"(?) Fertilize. fertilizer: {fertilizer}";
+        }
     }
 }

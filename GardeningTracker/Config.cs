@@ -36,7 +36,7 @@ namespace GardeningTracker
         public void Save()
         {
             var content = JsonConvert.SerializeObject(this);
-            File.WriteAllText(content, configFile);
+            File.WriteAllText(configFile, content);
         }
     }
 }

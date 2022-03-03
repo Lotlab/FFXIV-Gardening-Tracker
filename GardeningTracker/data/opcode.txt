@@ -7,6 +7,7 @@ GuessTargetAction32 = 0x01c7,
 // Server side
 ObjectSpawn = 0x0306,
 ItemInfo = 0x0305,
+UpdateInventorySlot = 0x0183,
 GuessTargetConfirm = 0x008b,
 GuessZoneInto = 0x0076,
 ObjectExteralData = 0x00E9,
