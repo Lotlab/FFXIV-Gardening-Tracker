@@ -252,7 +252,7 @@ namespace GardeningTracker
                 return "未知区域";
 
             var wardNum = ident.WardNum & 0x3F;
-            var str = $"{MapNames[ident.MapId]} 第{wardNum}区";
+            var str = $"{MapNames[ident.MapId]} 第{wardNum + 1}区";
 
             if (indoor)
             {
