@@ -198,8 +198,8 @@ namespace GardeningTracker
                     case UpdateInventorySlot t6: // 更新物品信息
                         parseItemInfo(t6.Value);
                         break;
-                    case GuessTargetConfirm t3: // 目标确认
-                        parseTargetConfirm(t3);
+                    case EventStart t3: // 目标确认
+                        parseEventStart(t3);
                         break;
                     case GuessZoneInto t4: // 场景切换
                         parseZoneSwitch(t4);
@@ -311,7 +311,7 @@ namespace GardeningTracker
             return data.GetZoneName(zone.Ident, zone.IsInHouse);
         }
 
-        private void parseTargetConfirm(GuessTargetConfirm cf)
+        private void parseEventStart(EventStart cf)
         {
             // 接收到交互确认信息
             // 存储物体的TargetID与ActorID的对应关系
