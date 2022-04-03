@@ -5,6 +5,8 @@ using System.IO;
 using Lotlab.PluginCommon.FFXIV.Parser;
 using GardeningTracker.Packets;
 using Lotlab.PluginCommon.FFXIV.Parser.Packets;
+using Lotlab.PluginCommon.Updater;
+using System.Threading.Tasks;
 
 namespace GardeningTracker
 {
@@ -27,6 +29,8 @@ namespace GardeningTracker
 
         NetworkParser parser { get; } = new NetworkParser();
 
+        ExtendedUpdater updater { get; }
+
         public GardeningStorage Storage { get; }
         Action<string> logInAct { get; }
 
@@ -45,12 +49,18 @@ namespace GardeningTracker
 
         public string DataPath { get; }
 
-        public GardeningTracker(Action<string> actLogFunc, string extDataPath, string appDataPath)
+        public string AsmDir { get; }
+
+        public string ExtDataDir => Path.Combine(AsmDir, "data");
+
+        public GardeningTracker(Action<string> actLogFunc, string asmDir, string appDataPath)
         {
             logInAct = actLogFunc;
             DataPath = appDataPath;
+            AsmDir = asmDir;
 
             Logger = new SimpleLoggerSync(Path.Combine(DataPath, "app.log"));
+            updater = new ExtendedUpdater("https://tools.lotlab.org/dl/ffxiv/GardeningTracker/_update/", AsmDir);
 
             // Load config
             try
@@ -66,26 +76,18 @@ namespace GardeningTracker
             Logger.SetFilter(Config.LogLevel);
 
             // load opcode
-            try
-            {
-                var loader = new WizardOpcodeReader();
-                var opcode = loader.ReadFile(Path.Combine(extDataPath, "opcode.txt"));
-                parser.SetOpcodes(opcode);
-            }
-            catch (Exception e)
-            {
-                Logger.LogError("Opcode加载失败: " + e.Message);
-            }
+            loadOpcode(ExtDataDir);
 
             // Read external data
             try
             {
-                data = new GardeningData(extDataPath);
+                data = new GardeningData(ExtDataDir);
                 data.Read();
             }
             catch (Exception e)
             {
                 Logger.LogError("数据文件加载失败: " + e.Message);
+                Logger.LogInfo("请检查上述文件是否存在");
             }
             Logger.LogInfo("数据文件加载成功");
 
@@ -102,6 +104,23 @@ namespace GardeningTracker
 
             Logger.LogInfo("已恢复上次保存的信息");
             Logger.LogInfo($"初始化完毕");
+
+            checkUpdate();
+        }
+
+        private void loadOpcode(string extDataPath)
+        {
+            try
+            {
+                var loader = new WizardOpcodeReader();
+                var opcode = loader.ReadFile(Path.Combine(extDataPath, "opcode.txt"));
+                parser.SetOpcodes(opcode);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError("Opcode加载失败: " + e.Message);
+                Logger.LogInfo("请检查上述文件是否存在");
+            }
         }
 
         /// <summary>
@@ -147,6 +166,58 @@ namespace GardeningTracker
             ItemTable.Clear();
             // 是否有必要？好像会缓存
             ObjectExternalDataTable.Clear();
+        }
+
+        void reloadConfig()
+        {
+            Logger.LogDebug($"正在重新加载数据");
+            data.Read();
+            loadOpcode(ExtDataDir);
+        }
+
+        void checkUpdate()
+        {
+            updater.Version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+
+            Task.Run(async () => {
+                Logger.LogInfo("正在检查更新...当前版本: " + updater.Version);
+                try
+                {
+                    var updateInfo = await updater.CheckUpdateAsync();
+                    if (updateInfo == null)
+                    {
+                        Logger.LogInfo("当前使用的是最新版本.");
+                        return;
+                    }
+
+                    Logger.LogInfo($"发现新版本: {updateInfo.Value.Version} {updateInfo.Value.ChangeLog}");
+                    try
+                    {
+                        Logger.LogInfo("正在更新...");
+                        var fileList = await updater.UpdateAsync(updateInfo.Value);
+                        Logger.LogInfo("更新完毕");
+
+                        bool dataUpdated = false;
+                        bool asmUpdated = false;
+                        foreach (var item in fileList)
+                        {
+                            if (item.StartsWith("data")) dataUpdated = true;
+                            if (item.EndsWith("dll")) asmUpdated = true;
+                        }
+
+                        if (dataUpdated) reloadConfig();
+                        if (asmUpdated) Logger.LogInfo("程序已更新，请重新加载插件或重启你的ACT。");
+                    }
+                    catch(Exception e)
+                    {
+                        Logger.LogWarning("更新失败：" + e.ToString());
+                    }
+                }
+                catch (Exception e)
+                {
+                    Logger.LogWarning("检查更新失败：" + e.ToString());
+                }
+            });
         }
 
         public void NetworkSend(byte[] message)

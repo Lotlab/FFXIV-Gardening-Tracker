@@ -70,11 +70,10 @@ namespace GardeningTracker
 
         void pluginInit(TabPage page)
         {
-            var asmDir = Path.Combine(ActPlugin.pluginFile.DirectoryName, "data");
             var appDataDir = Path.Combine(ActGlobals.oFormActMain.AppDataFolder.Parent.FullName, "GardeningTracker");
             prepareDir(appDataDir);
 
-            tracker = new GardeningTracker(actLog, asmDir, appDataDir);
+            tracker = new GardeningTracker(actLog, ActPlugin.pluginFile.DirectoryName, appDataDir);
 
             // Register events
             ffxiv.DataSubscription.NetworkSent += onNetworkSend;

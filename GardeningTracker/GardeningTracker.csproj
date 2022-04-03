@@ -48,11 +48,12 @@
   <ItemGroup>
     <ProjectReference Include="..\PluginCommon\PluginCommon.FFXIV\Lotlab.PluginCommon.FFXIV.csproj" />
     <ProjectReference Include="..\PluginCommon\PluginCommon.Overlay\Lotlab.PluginCommon.Overlay.csproj" />
+    <ProjectReference Include="..\PluginCommon\PluginCommon.Updater\Lotlab.PluginCommon.Updater.csproj" />
     <ProjectReference Include="..\PluginCommon\PluginCommon.WPF\Lotlab.PluginCommon.WPF.csproj" />
     <ProjectReference Include="..\PluginCommon\PluginCommon\Lotlab.PluginCommon.csproj" />
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy /y $(ProjectDir)data  $(ProjectDir)$(OutDir)data" />
+    <Exec Command="xcopy /y /e $(ProjectDir)data\ $(ProjectDir)$(OutDir)data\&#xD;&#xA;$(TargetDir)..\..\..\..\GardeningTracker.Packer\bin\Release\net48\GardeningTracker.Packer $(TargetDir)" />
   </Target>
 
 </Project>
