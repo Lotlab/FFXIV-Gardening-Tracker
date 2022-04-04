@@ -10,6 +10,8 @@ namespace GardeningTracker
 
         public bool AutoSave { get; set; } = true;
 
+        public bool AutoUpdate { get; set; } = true;
+
         public Config(string fileName)
         {
             configFile = fileName;
@@ -28,6 +30,7 @@ namespace GardeningTracker
             var obj = JsonConvert.DeserializeObject<Config>(content);
 
             LogLevel = obj.LogLevel;
+            AutoUpdate = obj.AutoUpdate;
         }
 
         /// <summary>

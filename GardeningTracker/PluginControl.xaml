@@ -105,10 +105,13 @@
                                         <Setter Property="Padding" Value="5,10,5,10" />
                                     </Style>
                                 </Grid.Resources>
-                                <Label>自动保存：</Label>
-                                <CheckBox Grid.Column="1" VerticalAlignment="Center" IsChecked="{Binding AutoSave}">变动后保存</CheckBox>
-                                <Label Grid.Row="1" Grid.Column="0">日志级别：</Label>
-                                <ComboBox Grid.Row="1" Grid.Column="1" SelectedItem="{Binding LogLevel}" ItemsSource="{Binding LogLevels}"/>
+                                <Label Grid.Row="1">自动保存：</Label>
+                                <CheckBox Grid.Row="1"  Grid.Column="1" VerticalAlignment="Center" IsChecked="{Binding AutoSave}">变动后保存</CheckBox>
+                                <Label Grid.Row="0" Grid.Column="0">日志级别：</Label>
+                                <ComboBox Grid.Row="0" Grid.Column="1" SelectedItem="{Binding LogLevel}" ItemsSource="{Binding LogLevels}"/>
+                                <Label Grid.Row="2" Grid.Column="0">自动更新：</Label>
+                                <CheckBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" IsChecked="{Binding AutoUpdate}">启动时更新</CheckBox>
+                                <Button Grid.Row="3" Grid.ColumnSpan="2" Command="{Binding CheckUpdateButton}">检查更新</Button>
 
                             </Grid>
                         </GroupBox>

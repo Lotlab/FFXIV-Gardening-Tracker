@@ -35,6 +35,10 @@ namespace GardeningTracker
                     SelectedItem = null;
                 }
             };
+            CheckUpdateButton.OnExecute += (obj) =>
+            {
+                this.tracker.CheckUpdate();
+            };
         }
 
         private void TrackerPropertyProxy(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -86,9 +90,21 @@ namespace GardeningTracker
             }
         }
 
+        public bool AutoUpdate
+        {
+            get => tracker.Config.AutoUpdate;
+            set
+            {
+                tracker.Config.AutoUpdate = value;
+                OnPropertyChanged();
+            }
+        }
+
         public SimpleCommand SyncButton { get; } = new SimpleCommand();
 
         public SimpleCommand DeleteCommand { get; } = new SimpleCommand();
+
+        public SimpleCommand CheckUpdateButton { get; } = new SimpleCommand();
 
         private GardeningDisplayItem _selectedItem = null;
         public GardeningDisplayItem SelectedItem

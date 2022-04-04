@@ -105,7 +105,10 @@ namespace GardeningTracker
             Logger.LogInfo("已恢复上次保存的信息");
             Logger.LogInfo($"初始化完毕");
 
-            checkUpdate();
+            if (Config.AutoUpdate)
+            {
+                CheckUpdate();
+            }
         }
 
         private void loadOpcode(string extDataPath)
@@ -175,7 +178,7 @@ namespace GardeningTracker
             loadOpcode(ExtDataDir);
         }
 
-        void checkUpdate()
+        public void CheckUpdate()
         {
             updater.Version = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
 
