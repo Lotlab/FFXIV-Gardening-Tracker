@@ -154,7 +154,16 @@ namespace GardeningTracker
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            throw new NotImplementedException();
+            try
+            {
+                string str = System.Convert.ToString(value);
+                var result = DateTimeOffset.ParseExact(str, "yyyy-MM-dd HH:mm:ss", new CultureInfo("zh-CN"));
+                return result.ToUnixTimeSeconds();
+            }
+            catch
+            {
+                return 0;
+            }
         }
     }
 }

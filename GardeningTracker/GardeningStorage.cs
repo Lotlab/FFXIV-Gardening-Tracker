@@ -64,6 +64,7 @@ namespace GardeningTracker
                 var houseName = data.GetZoneName(item.Ident.House);
                 var landName = data.GetGardenNamePos(item.Ident.ObjectID, item.Ident.LandIndex, item.Ident.LandSubIndex);
                 dispDict[item.Ident] = new GardeningDisplayItem(item.Ident, houseName, landName, data.GetSoilName(item.Soil), data.GetSeedName(item.Seed), item.SowTime, item.LastCare);
+                dispDict[item.Ident].PropertyChanged += onPropChanged;
 
                 Gardens.Add(dispDict[item.Ident]);
 
@@ -73,6 +74,30 @@ namespace GardeningTracker
                 updateEstColor(item.Ident);
             }
 
+        }
+
+        private void onPropChanged(object sender, PropertyChangedEventArgs e)
+        {
+            GardeningDisplayItem item = sender as GardeningDisplayItem;
+            if (item == null) return;
+
+            switch(e.PropertyName)
+            {
+                case nameof(GardeningDisplayItem.LastCare):
+                    lock (StorageLock)
+                    {
+                        storageDict[item.Ident].Care(item.LastCare);
+                        updateEstWitheredTime(item.Ident);
+                    }
+                    break;
+                case nameof(GardeningDisplayItem.SowTime):
+                    lock (StorageLock)
+                    {
+                        storageDict[item.Ident].SowTime = item.SowTime;
+                        updateEstMatureTime(item.Ident);
+                    }
+                    break;
+            }
         }
 
         /// <summary>
@@ -536,10 +561,20 @@ namespace GardeningTracker
         /// </summary>
         public string Color { get; set; }
 
+        UInt64 _sowTime;
+
         /// <summary>
         /// 播种时间
         /// </summary>
-        public UInt64 SowTime { get; }
+        public UInt64 SowTime 
+        {
+            get => _sowTime;
+            set
+            {
+                _sowTime = value;
+                OnPropertyChanged();
+            }
+        }
 
         UInt64 _lastCare = 0;
 

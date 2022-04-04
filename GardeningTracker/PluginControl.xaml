@@ -31,19 +31,19 @@
                         SelectionMode="Single"
                         VerticalGridLinesBrush="Gray"
                         HorizontalGridLinesBrush="Gray"
-                        IsReadOnly="True"
+                        IsReadOnly="False"
                         AutoGenerateColumns="False"
                         >
                     <DataGrid.Columns >
-                        <DataGridTextColumn Width="3*" Header="住宅" Binding="{Binding House}"></DataGridTextColumn>
-                        <DataGridTextColumn Width="1*" Header="位置" Binding="{Binding Pot}"></DataGridTextColumn>
-                        <DataGridTextColumn Width="1*" Header="土壤" Binding="{Binding Soil}"></DataGridTextColumn>
-                        <DataGridTextColumn Width="1*" Header="种子" Binding="{Binding Seed}"></DataGridTextColumn>
-                        <DataGridTextColumn Width="1*" Header="颜色" Binding="{Binding Color}"></DataGridTextColumn>
-                        <DataGridTextColumn Width="3*" Header="播种时间" Binding="{Binding SowTime, Converter={StaticResource dateConverter}}"></DataGridTextColumn>
-                        <DataGridTextColumn Width="3*" Header="上次护理时间" Binding="{Binding LastCare, Converter={StaticResource dateConverter}}"></DataGridTextColumn>
-                        <DataGridTextColumn Width="3*" Header="预计枯萎时间" Binding="{Binding EstWitheredTime, Converter={StaticResource dateConverter}}"></DataGridTextColumn>
-                        <DataGridTextColumn Width="3*" Header="预计成熟时间" Binding="{Binding EstMatureTime, Converter={StaticResource dateConverter}}"></DataGridTextColumn>
+                        <DataGridTextColumn Width="3*" Header="住宅" IsReadOnly="True" Binding="{Binding House}"></DataGridTextColumn>
+                        <DataGridTextColumn Width="1*" Header="位置" IsReadOnly="True" Binding="{Binding Pot}"></DataGridTextColumn>
+                        <DataGridTextColumn Width="1*" Header="土壤" IsReadOnly="True" Binding="{Binding Soil}"></DataGridTextColumn>
+                        <DataGridTextColumn Width="1*" Header="种子" IsReadOnly="True" Binding="{Binding Seed}"></DataGridTextColumn>
+                        <DataGridTextColumn Width="1*" Header="颜色" IsReadOnly="True" Binding="{Binding Color}"></DataGridTextColumn>
+                        <DataGridTextColumn Width="3*" Header="播种时间" Binding="{Binding SowTime, Mode=TwoWay, Converter={StaticResource dateConverter}}"></DataGridTextColumn>
+                        <DataGridTextColumn Width="3*" Header="上次护理时间" Binding="{Binding LastCare, Mode=TwoWay, Converter={StaticResource dateConverter}}"></DataGridTextColumn>
+                        <DataGridTextColumn Width="3*" Header="预计枯萎时间" IsReadOnly="True" Binding="{Binding EstWitheredTime, Converter={StaticResource dateConverter}}"></DataGridTextColumn>
+                        <DataGridTextColumn Width="3*" Header="预计成熟时间" IsReadOnly="True" Binding="{Binding EstMatureTime, Converter={StaticResource dateConverter}}"></DataGridTextColumn>
                     </DataGrid.Columns>
                     <DataGrid.CellStyle>
                         <Style TargetType="DataGridCell">
