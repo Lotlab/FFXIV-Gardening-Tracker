@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using Lotlab.PluginCommon.Updater;
 
 namespace GardeningTracker.Packer 
@@ -10,15 +11,22 @@ namespace GardeningTracker.Packer
     {
         static void Main(string[] args)
         {
-            var g = new UpdateGenerater();
+            var currentRoot = AppDomain.CurrentDomain.BaseDirectory;
+            var root = args.Length >= 1 ? args[0] : currentRoot;
 
-            var root = args.Length >= 1 ? args[0] : AppDomain.CurrentDomain.BaseDirectory;
             var entry = Path.Combine(root, "GardeningTracker.dll");
-
             var ver = FileVersionInfo.GetVersionInfo(entry).FileVersion;
-            g.Generate(root, ver, "");
 
-            PackZip(root, Path.Combine(root, "_update", $"GardeningTracker-{ver}.zip"));
+            // Generate update info
+            var generator = new UpdateGenerater(root, Path.Combine(root, "..", "update"));
+            generator.Generate(ver, "");
+
+            // Pack release file
+            var packDir = Path.Combine(root, "..", "pack");
+            if (!Directory.Exists(packDir))
+                Directory.CreateDirectory(packDir);
+
+            PackZip(root, Path.Combine(packDir, $"GardeningTracker-{ver}.zip"));
         }
 
         static void PackZip(string rootDir, string outName)
@@ -27,13 +35,12 @@ namespace GardeningTracker.Packer
             {
                 using (var archive = new ZipArchive(ms, ZipArchiveMode.Create, true))
                 {
-                    foreach (var dll in Directory.GetFiles(rootDir, "*.dll"))
+                    var files = Directory.EnumerateFiles(rootDir, "*", SearchOption.AllDirectories)
+                        .Select(p => p.Replace(rootDir, ""));
+
+                    foreach (var file in files)
                     {
-                        archive.CreateEntryFromFile(dll, Path.GetFileName(dll));
-                    }
-                    foreach (var data in Directory.GetFiles(Path.Combine(rootDir, "data"), "*"))
-                    {
-                        archive.CreateEntryFromFile(data, "data/" + Path.GetFileName(data));
+                        archive.CreateEntryFromFile(Path.Combine(rootDir, file), file);
                     }
                 }
 
