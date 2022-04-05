@@ -1,13 +1,13 @@
 // Client side
-GuessTargetBinding = 0x03a5,
-GuessTargetAction = 0x0133,
-GuessTargetAction16 = 0x038f,
-GuessTargetAction32 = 0x011a,
+GuessTargetBinding = 0x00be,
+GuessTargetAction = 0x0339,
+GuessTargetAction16 = 0x02de,
+GuessTargetAction32 = 0x0358,
 
 // Server side
-ObjectSpawn = 0x030c,
-ItemInfo = 0x035d,
-UpdateInventorySlot = 0x0093,
-EventStart= 0x00d9,
-GuessZoneInto = 0x03d4,
-ObjectExteralData = 0x0305,
+ObjectSpawn = 0x0247,
+ItemInfo = 0x0115,
+UpdateInventorySlot = 0x0203,
+EventStart = 0x0162,
+GuessZoneInto = 0x01e2,
+ObjectExteralData = 0x0317,
