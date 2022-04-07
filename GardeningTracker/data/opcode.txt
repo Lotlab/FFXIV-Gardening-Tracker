@@ -3,6 +3,7 @@ GuessTargetBinding = 0x00be,
 GuessTargetAction = 0x0339,
 GuessTargetAction16 = 0x02de,
 GuessTargetAction32 = 0x0358,
+InventoryModify = 0x021b,
 
 // Server side
 ObjectSpawn = 0x0247,

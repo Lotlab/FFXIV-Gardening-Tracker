@@ -244,6 +244,9 @@ namespace GardeningTracker
                     case GuessTargetAction32 t4: // 目标互动2，播种
                         parseTargetAction2(t4);
                         break;
+                    case InventoryModify t5: // 修改背包
+                        parseInventoryModify(t5);
+                        break;
                     default:
                         break;
                 }
@@ -407,6 +410,74 @@ namespace GardeningTracker
         }
 
         /// <summary>
+        /// 解析物体操作
+        /// </summary>
+        /// <param name="mod"></param>
+        private void parseInventoryModify(InventoryModify mod)
+        {
+            Logger.LogTrace(mod.ToString());
+
+            var from = new FFXIVItemShort() { containerID = (ushort)mod.Value.fromContainer, slotID = mod.Value.fromSlot };
+            var to = new FFXIVItemShort() { containerID = (ushort)mod.Value.toContainer, slotID = mod.Value.toSlot };
+
+            lock (ItemTable)
+            {
+                switch ((InventoryOperation)mod.Value.action)
+                {
+                    case InventoryOperation.Discard:
+                        ItemTable.Remove(from);
+                        break;
+
+                    case InventoryOperation.Move:
+                        var orig = ItemTable[from];
+                        ItemTable.Remove(from);
+                        orig.containerId = to.containerID;
+                        orig.slot = to.slotID;
+                        ItemTable[to] = orig;
+                        break;
+
+                    case InventoryOperation.Swap:
+                        var a = ItemTable[from];
+                        var b = ItemTable[to];
+
+                        a.containerId = to.containerID;
+                        a.slot = to.slotID;
+                        b.containerId = from.containerID;
+                        b.slot = from.slotID;
+
+                        ItemTable[to] = a;
+                        ItemTable[from] = b;
+                        break;
+
+                    case InventoryOperation.Split:
+                        var toSplit = ItemTable[from];
+                        var splited = ItemTable[from];
+
+                        toSplit.quantity = mod.Value.fromQuantity - mod.Value.toQuantity;
+                        splited.quantity = mod.Value.toQuantity;
+
+                        splited.containerId = to.containerID;
+                        splited.slot = to.slotID;
+
+                        ItemTable[from] = toSplit;
+                        ItemTable[to] = splited;
+                        break;
+
+                    case InventoryOperation.Merge:
+                        var mergeTo = ItemTable[to];
+                        mergeTo.quantity = mod.Value.fromQuantity + mod.Value.toQuantity;
+                        ItemTable[to] = mergeTo;
+
+                        ItemTable.Remove(from);
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+        }
+
+        /// <summary>
         /// 接收到可交互物体信息
         /// 存储物体ActorID与物体本身对应关系
         /// </summary>
@@ -528,7 +599,7 @@ namespace GardeningTracker
             var itemIndex = fertParam.fertilizer.GetShort();
             if (!ItemTable.ContainsKey(itemIndex))
             {
-                Logger.LogDebug($"无法找到施放的肥料：{fertParam.fertilizer}");
+                Logger.LogError($"无法找到施放的肥料：{fertParam.fertilizer}");
                 dumpItemTable(); // Debug
                 return;
             }
@@ -564,10 +635,10 @@ namespace GardeningTracker
             if (!ItemTable.ContainsKey(soilIndex) || !ItemTable.ContainsKey(seedIndex))
             {
                 if (!ItemTable.ContainsKey(soilIndex))
-                    Logger.LogDebug($"无法找到播种对应的土壤： {soilIndex}");
+                    Logger.LogError($"无法找到播种对应的土壤： {soilIndex}");
                 
                 if (!ItemTable.ContainsKey(seedIndex))
-                    Logger.LogDebug($"无法找到播种对应的种子： {soilIndex}");
+                    Logger.LogError($"无法找到播种对应的种子： {soilIndex}");
 
                 dumpItemTable(); // Debug
                 return;
