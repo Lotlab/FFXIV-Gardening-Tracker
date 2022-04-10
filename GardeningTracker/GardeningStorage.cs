@@ -26,10 +26,12 @@ namespace GardeningTracker
 
         GardeningData data { get; }
         Config config { get; }
-        public GardeningStorage(GardeningData data, Config config, string saveFilePath)
+        SimpleLogger logger { get; }
+        public GardeningStorage(SimpleLogger logger, GardeningData data, Config config, string saveFilePath)
         {
             this.data = data;
             this.config = config;
+            this.logger = logger;
             filePath = saveFilePath;
             BindingOperations.EnableCollectionSynchronization(Gardens, StorageLock);
         }
@@ -191,7 +193,8 @@ namespace GardeningTracker
                 }
 
                 storageDict[ident].Care(time);
-                dispDict[ident].LastCare = time;
+                dispDict[ident].CareWithoutNotify(time);
+
                 // 更新枯萎时间
                 updateEstWitheredTime(ident);
                 updateEstColor(ident);
@@ -589,6 +592,11 @@ namespace GardeningTracker
                 _lastCare = value;
                 OnPropertyChanged();
             }
+        }
+
+        public void CareWithoutNotify(UInt64 value)
+        {
+            _lastCare = value;
         }
 
         UInt64 _estMature = 0;

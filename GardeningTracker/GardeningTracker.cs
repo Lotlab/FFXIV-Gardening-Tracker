@@ -94,7 +94,7 @@ namespace GardeningTracker
             // Init storage data
             try
             {
-                Storage = new GardeningStorage(data, Config, Path.Combine(DataPath, "garden.json"));
+                Storage = new GardeningStorage(Logger, data, Config, Path.Combine(DataPath, "garden.json"));
                 Storage.Load();
             }
             catch (Exception e)
