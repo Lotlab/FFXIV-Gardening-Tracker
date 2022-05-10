@@ -149,8 +149,11 @@ namespace GardeningTracker
             foreach (var item in obj.Fertilizes)
             {
                 var remainTime = obj.SowTime + matureTime - item.Time;
-                var reduce = remainTime * 0.00989;
-                matureTime -= (uint)reduce;
+                if (remainTime > 0)
+                {
+                    var reduce = remainTime * 0.00989;
+                    matureTime -= (uint)reduce;
+                }
             }
 
             dispDict[ident].EstMatureTime = obj.SowTime + matureTime;
