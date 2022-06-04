@@ -31,6 +31,8 @@ namespace GardeningTracker
 
         ExtendedUpdater updater { get; }
 
+        public OpcodeGuide opcodeGuide { get; }
+
         public GardeningStorage Storage { get; }
         Action<string> logInAct { get; }
 
@@ -104,6 +106,8 @@ namespace GardeningTracker
 
             Logger.LogInfo("已恢复上次保存的信息");
             Logger.LogInfo($"初始化完毕");
+
+            opcodeGuide = new OpcodeGuide(Logger, data);
 
             if (Config.AutoUpdate)
             {
@@ -232,9 +236,6 @@ namespace GardeningTracker
 
                 switch (packet)
                 {
-                    case GuessTargetBinding t1: // 目标选择
-                        parseTargetSelection(t1);
-                        break;
                     case GuessTargetAction t2: // 目标互动
                         parseObjectInteractive(t2);
                         break;
@@ -255,6 +256,9 @@ namespace GardeningTracker
             {
                 Logger.LogError(e);
             }
+
+            // For opcode detect
+            opcodeGuide.NetworkSend(message);
         }
 
         public void NetworkReceive(byte[] message)
@@ -292,6 +296,9 @@ namespace GardeningTracker
             {
                 Logger.LogError(e);
             }
+
+            // For opcode detect
+            opcodeGuide.NetworkReceive(message);
         }
 
         public void SystemLogZoneChange(uint world, string area, int ward)
@@ -669,12 +676,6 @@ namespace GardeningTracker
                 var str = $"Item {item.catalogId}@({item.containerSequence}, {item.containerId}, {item.slot}), Qty: {item.quantity}, Hq: {item.hqFlag}, Cond: {item.condition}";
                 Logger.LogTrace(str);
             }
-        }
-
-        private void parseTargetSelection(GuessTargetBinding packet)
-        {
-            // 选择目标
-            Logger.LogTrace(packet.ToString());
         }
 
         /// <summary>

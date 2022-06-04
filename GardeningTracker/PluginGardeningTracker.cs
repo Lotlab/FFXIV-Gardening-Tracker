@@ -71,6 +71,9 @@ namespace GardeningTracker
         void pluginInit(TabPage page)
         {
             var appDataDir = Path.Combine(ActGlobals.oFormActMain.AppDataFolder.Parent.FullName, "GardeningTracker");
+#if DEBUG
+            appDataDir += "Debug";
+#endif
             prepareDir(appDataDir);
 
             tracker = new GardeningTracker(actLog, ActPlugin.pluginFile.DirectoryName, appDataDir);

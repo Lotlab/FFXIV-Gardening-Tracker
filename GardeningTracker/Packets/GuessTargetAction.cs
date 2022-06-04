@@ -17,6 +17,7 @@ namespace GardeningTracker.Packets
         public UInt32 targetID;
         public UInt32 flags;
         public UInt32 operation;
+        public UInt32 padding;
     }
 
     class GuessTargetAction : IPCPacketBase<FFXIVIpcGuessTargetAction>

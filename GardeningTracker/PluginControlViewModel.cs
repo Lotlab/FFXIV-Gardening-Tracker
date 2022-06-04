@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Windows.Data;
 using System.Windows.Input;
+using System.Windows;
 
 namespace GardeningTracker
 {
@@ -38,6 +39,19 @@ namespace GardeningTracker
             CheckUpdateButton.OnExecute += (obj) =>
             {
                 this.tracker.CheckUpdate();
+            };
+
+            OpcodeGuideStart.OnExecute += (obj) =>
+            {
+                this.tracker.opcodeGuide.Restart();
+            };
+            OpcodeGuideNext.OnExecute += (obj) =>
+            {
+                this.tracker.opcodeGuide.Skip();
+            };
+            OpcodeGuideSave.OnExecute += (obj) =>
+            {
+                this.tracker.opcodeGuide.Save();
             };
         }
 
@@ -100,11 +114,27 @@ namespace GardeningTracker
             }
         }
 
+        bool debug = false;
+        public bool Debug {
+            get => debug;
+            set
+            {
+                debug = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(DebugVisible));
+            }
+        }
+
+        public Visibility DebugVisible => Debug ? Visibility.Visible : Visibility.Hidden;
+
         public SimpleCommand SyncButton { get; } = new SimpleCommand();
 
         public SimpleCommand DeleteCommand { get; } = new SimpleCommand();
 
         public SimpleCommand CheckUpdateButton { get; } = new SimpleCommand();
+        public SimpleCommand OpcodeGuideStart { get; } = new SimpleCommand();
+        public SimpleCommand OpcodeGuideNext { get; } = new SimpleCommand();
+        public SimpleCommand OpcodeGuideSave { get; } = new SimpleCommand();
 
         private GardeningDisplayItem _selectedItem = null;
         public GardeningDisplayItem SelectedItem
