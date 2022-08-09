@@ -6,11 +6,11 @@ namespace GardeningTracker.Packets
 {
     enum InventoryOperation
     {
-        Discard = 0x0222,
-        Move = 0x0223,
-        Swap = 0x0224,
-        Split = 0x0225,
-        Merge = 0x0227,
+        Discard = 154,
+        Move = 155,
+        Swap = 156,
+        Split = 157,
+        Merge = 158,
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]

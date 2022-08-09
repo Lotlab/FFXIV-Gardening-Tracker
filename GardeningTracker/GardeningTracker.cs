@@ -232,24 +232,25 @@ namespace GardeningTracker
             try
             {
                 var packet = parser.ParsePacket(message);
-                if (packet == null) return;
-
-                switch (packet)
+                if (packet != null)
                 {
-                    case GuessTargetAction t2: // 目标互动
-                        parseObjectInteractive(t2);
-                        break;
-                    case GuessTargetAction16 t3: // 目标互动1，施肥
-                        parseTargetAction1(t3);
-                        break;
-                    case GuessTargetAction32 t4: // 目标互动2，播种
-                        parseTargetAction2(t4);
-                        break;
-                    case InventoryModify t5: // 修改背包
-                        parseInventoryModify(t5);
-                        break;
-                    default:
-                        break;
+                    switch (packet)
+                    {
+                        case GuessTargetAction t2: // 目标互动
+                            parseObjectInteractive(t2);
+                            break;
+                        case GuessTargetAction16 t3: // 目标互动1，施肥
+                            parseTargetAction1(t3);
+                            break;
+                        case GuessTargetAction32 t4: // 目标互动2，播种
+                            parseTargetAction2(t4);
+                            break;
+                        case InventoryModify t5: // 修改背包
+                            parseInventoryModify(t5);
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
             catch (Exception e)
@@ -266,30 +267,31 @@ namespace GardeningTracker
             try
             {
                 var packet = parser.ParsePacket(message);
-                if (packet == null) return;
-
-                switch (packet)
+                if (packet != null)
                 {
-                    case ObjectSpawn t1: // 物体生成
-                        parseObjectSpawn(t1);
-                        break;
-                    case ItemInfo t2: // 物品信息
-                        parseItemInfo(t2.Value);
-                        break;
-                    case UpdateInventorySlot t6: // 更新物品信息
-                        parseItemInfo(t6.Value);
-                        break;
-                    case EventStart t3: // 目标确认
-                        parseEventStart(t3);
-                        break;
-                    case GuessZoneInto t4: // 场景切换
-                        parseZoneSwitch(t4);
-                        break;
-                    case ObjectExteralData t5: // 额外数据
-                        parseObjectExternalData(t5);
-                        break;
-                    default:
-                        break;
+                    switch (packet)
+                    {
+                        case ObjectSpawn t1: // 物体生成
+                            parseObjectSpawn(t1);
+                            break;
+                        case ItemInfo t2: // 物品信息
+                            parseItemInfo(t2.Value);
+                            break;
+                        case UpdateInventorySlot t6: // 更新物品信息
+                            parseItemInfo(t6.Value);
+                            break;
+                        case EventStart t3: // 目标确认
+                            parseEventStart(t3);
+                            break;
+                        case GuessZoneInto t4: // 场景切换
+                            parseZoneSwitch(t4);
+                            break;
+                        case ObjectExteralData t5: // 额外数据
+                            parseObjectExternalData(t5);
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
             catch (Exception e)

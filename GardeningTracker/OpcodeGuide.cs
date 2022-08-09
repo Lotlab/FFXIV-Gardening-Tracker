@@ -22,7 +22,7 @@ namespace GardeningTracker
         object indexLock = new object();
         
         int currentIndex = -1;
-        HandlerItem current => handlers.Count > currentIndex ? handlers[currentIndex] : null;
+        HandlerItem current => currentIndex < handlers.Count ? handlers[currentIndex] : null;
 
         public OpcodeGuide(SimpleLogger logger, GardeningData data)
         {
@@ -258,7 +258,7 @@ namespace GardeningTracker
                 currentIndex++;
                 if (current != null)
                     logger.LogInfo($"[{currentIndex + 1}/{handlers.Count}] {current.Instruction}");
-                if (currentIndex > handlers.Count)
+                if (currentIndex >= handlers.Count)
                     logger.LogInfo("Opcode 已检测完毕。");
             }
         }
