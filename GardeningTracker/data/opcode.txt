@@ -1,13 +1,10 @@
-// Client side
-GuessTargetAction = 651,
-GuessTargetAction16 = 192,
-GuessTargetAction32 = 939,
-InventoryModify = 147,
-
-// Server side
-ObjectSpawn = 193,
-ItemInfo = 903,
-UpdateInventorySlot = 987,
-EventStart = 190,
-GuessZoneInto = 812,
-ObjectExteralData = 433,
+GuessZoneInto = 763,
+ObjectExteralData = 200,
+ObjectSpawn = 771,
+ItemInfo = 742,
+InventoryModify = 628,
+UpdateInventorySlot = 339,
+EventStart = 902,
+GuessTargetAction = 794,
+GuessTargetAction16 = 593,
+GuessTargetAction32 = 312,
