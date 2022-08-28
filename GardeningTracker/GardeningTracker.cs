@@ -190,9 +190,17 @@ namespace GardeningTracker
                 Logger.LogInfo("正在检查更新...当前版本: " + updater.Version);
                 try
                 {
-                    var updateInfo = await updater.CheckUpdateAsync();
+                    var updateInfo = await updater.CheckUpdateV2Async();
                     if (updateInfo == null)
                     {
+                        Logger.LogInfo("当前使用的是最新版本.");
+                        return;
+                    }
+
+                    var updateList = updater.GetChangedFiles(updateInfo.Value.Files);
+                    if (updateList.Count == 0)
+                    {
+                        Logger.LogDebug($"发现新版本 {updateInfo.Value.Version} 但无文件变动");
                         Logger.LogInfo("当前使用的是最新版本.");
                         return;
                     }
@@ -201,7 +209,7 @@ namespace GardeningTracker
                     try
                     {
                         Logger.LogInfo("正在更新...");
-                        var fileList = await updater.UpdateAsync(updateInfo.Value);
+                        var fileList = await updater.UpdateAsync(updateList);
                         Logger.LogInfo("更新完毕");
 
                         bool dataUpdated = false;
@@ -213,7 +221,7 @@ namespace GardeningTracker
                         }
 
                         if (dataUpdated) reloadConfig();
-                        if (asmUpdated) Logger.LogInfo("程序已更新，请重新加载插件或重启你的ACT。");
+                        if (asmUpdated) Logger.LogInfo("插件本体已更新，请重新加载插件或直接重启你的ACT。");
                     }
                     catch(Exception e)
                     {

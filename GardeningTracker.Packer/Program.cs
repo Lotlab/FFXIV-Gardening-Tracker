@@ -19,7 +19,10 @@ namespace GardeningTracker.Packer
 
             // Generate update info
             var generator = new UpdateGenerater(root, Path.Combine(root, "..", "update"));
-            generator.Generate(ver, "");
+            generator.Generate(ver, ""); // v1 compatible
+
+            generator = new UpdateGenerater(root, Path.Combine(root, "..", "updatev2"));
+            generator.GenerateV2(ver, "");
 
             // Pack release file
             var packDir = Path.Combine(root, "..", "pack");
