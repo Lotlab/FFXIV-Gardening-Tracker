@@ -72,7 +72,7 @@ namespace GardeningTracker
             }
             catch (Exception e)
             {
-                Logger.LogError("配置加载失败: " + e.Message);
+                Logger.LogError("配置加载失败", e);
             }
 
             Logger.SetFilter(Config.LogLevel);
@@ -88,8 +88,8 @@ namespace GardeningTracker
             }
             catch (Exception e)
             {
-                Logger.LogError("数据文件加载失败: " + e.Message);
-                Logger.LogInfo("请检查上述文件是否存在");
+                Logger.LogError("数据文件加载失败", e);
+                Logger.LogInfo($"可能是外部数据异常，请尝试更新插件");
             }
             Logger.LogInfo("数据文件加载成功");
 
@@ -101,7 +101,7 @@ namespace GardeningTracker
             }
             catch (Exception e)
             {
-                Logger.LogError("保存的信息加载失败: " + e.Message);
+                Logger.LogError("保存的信息加载失败", e);
             }
 
             Logger.LogInfo("已恢复上次保存的信息");
@@ -125,8 +125,8 @@ namespace GardeningTracker
             }
             catch (Exception e)
             {
-                Logger.LogError("Opcode加载失败: " + e.Message);
-                Logger.LogInfo("请检查上述文件是否存在");
+                Logger.LogError("Opcode加载失败", e);
+                Logger.LogInfo($"可能是外部数据异常，请尝试更新插件");
             }
         }
 
@@ -225,12 +225,12 @@ namespace GardeningTracker
                     }
                     catch(Exception e)
                     {
-                        Logger.LogWarning("更新失败：" + e.ToString());
+                        Logger.LogWarning("更新失败", e);
                     }
                 }
                 catch (Exception e)
                 {
-                    Logger.LogWarning("检查更新失败：" + e.ToString());
+                    Logger.LogWarning("检查更新失败", e);
                 }
             });
         }

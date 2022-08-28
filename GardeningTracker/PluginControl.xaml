@@ -149,7 +149,7 @@
                 <local:AutoScrollListBox ScrollViewer.HorizontalScrollBarVisibility="Disabled" ItemsSource="{Binding Logs, Mode=OneWay}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock Padding="0" Margin="0" TextWrapping="Wrap" Text="{Binding Content, Mode=OneWay}"/>
+                            <TextBlock Padding="0" Margin="0" TextWrapping="Wrap" Text="{Binding FullContent, Mode=OneWay}"/>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </local:AutoScrollListBox>
