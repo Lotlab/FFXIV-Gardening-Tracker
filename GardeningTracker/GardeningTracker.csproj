@@ -53,7 +53,7 @@
     <ProjectReference Include="..\PluginCommon\PluginCommon\Lotlab.PluginCommon.csproj" />
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy /y /e $(ProjectDir)data\ $(ProjectDir)$(OutDir)data\&#xD;&#xA;$(TargetDir)..\..\..\..\GardeningTracker.Packer\bin\Release\net48\GardeningTracker.Packer $(TargetDir)" />
+    <Exec Command="xcopy /y /e $(ProjectDir)data\ $(ProjectDir)$(OutDir)data\&#xD;&#xA;$(TargetDir)..\..\..\..\PluginCommon\PluginCommon.Packer\bin\Release\net48\Lotlab.PluginCommon.Packer --src $(TargetDir) --name GardeningTracker --entry GardeningTracker.dll --v1" />
   </Target>
 
 </Project>
