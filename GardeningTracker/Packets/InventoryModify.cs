@@ -6,7 +6,7 @@ namespace GardeningTracker.Packets
 {
     enum InventoryOperation
     {
-        Discard = 794,
+        Discard = 320,
         Move,
         Swap,
         Split,
