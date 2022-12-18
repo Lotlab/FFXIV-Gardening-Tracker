@@ -17,6 +17,8 @@ namespace GardeningTracker
         
         Dictionary<Type, uint> opcodeResult = new Dictionary<Type, uint>();
 
+        List<string> opcodeComments = new List<string>();
+
         List<HandlerItem> handlers = new List<HandlerItem>();
 
         object indexLock = new object();
@@ -101,7 +103,9 @@ namespace GardeningTracker
                 var dat = obj as InventoryModify;
                 if (dat.Value.toContainer >= 4000 && dat.Value.toContainer <= 4003)
                 {
-                    logger.LogInfo("Operation code: " + dat.Value.action);
+                    var discardCode = dat.Value.action - 1;
+                    logger.LogInfo("Inventory move operation code: " + dat.Value.action);
+                    opcodeComments.Add("InventoryModifyCode: " + discardCode);
                     return true;
                 }
                 return false;
@@ -210,6 +214,7 @@ namespace GardeningTracker
         public void Restart()
         {
             opcodeResult.Clear();
+            opcodeComments.Clear();
 
             lock (indexLock) currentIndex = -1;
             Next(currentIndex);
@@ -230,6 +235,9 @@ namespace GardeningTracker
         public void Save()
         {
             string content = "";
+            foreach (var item in opcodeComments)
+                content += $"// {item}\n";
+            
             foreach (var item in opcodeResult)
                 content += $"{item.Key.Name} = {item.Value},\n";
             

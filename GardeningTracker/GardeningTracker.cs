@@ -120,7 +120,28 @@ namespace GardeningTracker
             try
             {
                 var loader = new WizardOpcodeReader();
-                var opcode = loader.ReadFile(Path.Combine(extDataPath, "opcode.txt"));
+                var content = File.ReadAllText(Path.Combine(extDataPath, "opcode.txt"));
+
+                // 读取注释
+                var lines = content.Split(new string[] { "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var line in lines)
+                {
+                    if (!line.StartsWith("// ")) continue;
+                    var item = line.TrimStart(new char[] { '/', ' ' });
+                    var items = item.Split(':');
+                    if (items.Length != 2) continue;
+                    switch (items[0].Trim())
+                    {
+                        case "InventoryModifyCode":
+                            InventoryOpStart = ushort.Parse(items[1].Trim());
+                            Logger.LogDebug($"InventoryOpStart: {InventoryOpStart}");
+                            break;
+                    }
+                }
+
+                // 正常的 opcode 处理流程
+                var opcode = loader.Parse(content);
+                parser.ClearOpcodes();
                 parser.SetOpcodes(opcode);
             }
             catch (Exception e)
@@ -129,6 +150,11 @@ namespace GardeningTracker
                 Logger.LogInfo($"可能是外部数据异常，请尝试更新插件");
             }
         }
+
+        /// <summary>
+        /// 仓库操作魔数
+        /// </summary>
+        UInt16 InventoryOpStart = 149;
 
         /// <summary>
         /// ActorID 映射表
@@ -439,7 +465,8 @@ namespace GardeningTracker
 
             lock (ItemTable)
             {
-                switch ((InventoryOperation)mod.Value.action)
+                var action = mod.Value.action - InventoryOpStart;
+                switch ((InventoryOperation)action)
                 {
                     case InventoryOperation.Discard:
                         ItemTable.Remove(from);

@@ -6,7 +6,7 @@ namespace GardeningTracker.Packets
 {
     enum InventoryOperation
     {
-        Discard = 149,
+        Discard,
         Move,
         Swap,
         Split,
@@ -39,7 +39,7 @@ namespace GardeningTracker.Packets
     {
         public override string ToString()
         {
-            return $"InventoryModify. Action: {(InventoryOperation)Value.action}, From: ({Value.fromContainer}, {Value.fromSlot})[{Value.fromQuantity}], To: ({Value.toContainer}, {Value.toSlot})[{Value.toQuantity}]";
+            return $"InventoryModify. Action: {Value.action}, From: ({Value.fromContainer}, {Value.fromSlot})[{Value.fromQuantity}], To: ({Value.toContainer}, {Value.toSlot})[{Value.toQuantity}]";
         }
     }
 }

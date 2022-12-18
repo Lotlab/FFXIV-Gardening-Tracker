@@ -1,3 +1,4 @@
+// InventoryModifyCode: 149
 GuessZoneInto = 417,
 ObjectExteralData = 333,
 ObjectSpawn = 131,
