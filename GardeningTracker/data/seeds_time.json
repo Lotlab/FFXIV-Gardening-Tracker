@@ -493,5 +493,10 @@
     "Index": 99,
     "GrowTime": 24,
     "WiltTime": 0
+  },
+  {
+    "Index": 100,
+    "GrowTime": 24,
+    "WiltTime": 0
   }
 ]
