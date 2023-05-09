@@ -593,6 +593,12 @@ namespace GardeningTracker
             var obj = getTargetGardeningIdent(act.Value.targetID);
             if (obj == null) return;
 
+            if ((act.Value.flags & 0xFFFF0000) != 0x01000000)
+            {
+                Logger.LogDebug("Flags Mask not match.");
+                return;
+            }
+
             var guessSeed = GetSeedID(obj.HousingLink);
 
             string action;
