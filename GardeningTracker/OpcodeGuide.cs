@@ -24,7 +24,7 @@ namespace GardeningTracker
         object indexLock = new object();
         
         int currentIndex = -1;
-        HandlerItem current => currentIndex < handlers.Count ? handlers[currentIndex] : null;
+        HandlerItem current => currentIndex < handlers.Count && currentIndex >= 0 ? handlers[currentIndex] : null;
 
         public OpcodeGuide(SimpleLogger logger, GardeningData data)
         {
