@@ -53,6 +53,10 @@ namespace GardeningTracker
             {
                 this.tracker.opcodeGuide.Save();
             };
+            HybridStatsTest.OnExecute += (obj) =>
+            {
+                this.tracker.hybridStats.UploadTestData();
+            };
         }
 
         private void TrackerPropertyProxy(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -114,6 +118,36 @@ namespace GardeningTracker
             }
         }
 
+        public string StatsWebhookUrl
+        {
+            get => tracker.Config.StatsWebhookUrl;
+            set
+            {
+                tracker.Config.StatsWebhookUrl = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string StatsWebhookToken
+        {
+            get => tracker.Config.StatsWebhookToken;
+            set
+            {
+                tracker.Config.StatsWebhookToken = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string StatsUserName
+        {
+            get => tracker.Config.StatsUserName;
+            set
+            {
+                tracker.Config.StatsUserName = value;
+                OnPropertyChanged();
+            }
+        }
+
         bool debug = false;
         public bool Debug {
             get => debug;
@@ -135,6 +169,7 @@ namespace GardeningTracker
         public SimpleCommand OpcodeGuideStart { get; } = new SimpleCommand();
         public SimpleCommand OpcodeGuideNext { get; } = new SimpleCommand();
         public SimpleCommand OpcodeGuideSave { get; } = new SimpleCommand();
+        public SimpleCommand HybridStatsTest { get; } = new SimpleCommand();
 
         private GardeningDisplayItem _selectedItem = null;
         public GardeningDisplayItem SelectedItem

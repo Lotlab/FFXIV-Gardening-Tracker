@@ -12,6 +12,19 @@ namespace GardeningTracker
 
         public bool AutoUpdate { get; set; } = true;
 
+        /// <summary>
+        /// 统计 Webhook URL
+        /// </summary>
+        public string StatsWebhookUrl { get; set; } = "";
+        /// <summary>
+        /// 统计 Webhook Token
+        /// </summary>
+        public string StatsWebhookToken { get; set; } = "";
+        /// <summary>
+        /// 统计用户名
+        /// </summary>
+        public string StatsUserName { get; set; } = "";
+
         public Config(string fileName)
         {
             configFile = fileName;
@@ -31,6 +44,9 @@ namespace GardeningTracker
 
             LogLevel = obj.LogLevel;
             AutoUpdate = obj.AutoUpdate;
+            StatsWebhookUrl = obj.StatsWebhookUrl;
+            StatsWebhookToken = obj.StatsWebhookToken;
+            StatsUserName = obj.StatsUserName;
         }
 
         /// <summary>

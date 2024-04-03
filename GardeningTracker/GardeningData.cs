@@ -392,6 +392,36 @@ namespace GardeningTracker
 
             return SeedIndexTable[index];
         }
+
+        /// <summary>
+        /// 根据种子获取产物ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public uint GetSeedProductID(uint id)
+        {
+            if (!SeedProducts.ContainsKey(id))
+                return 0;
+            return SeedProducts[id];
+        }
+
+        /// <summary>
+        /// 根据ID获取物品名称
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public string GetItemName(uint id)
+        {
+            if (id == 0)
+                return null;
+
+            if (SeedNames.ContainsKey(id))
+                return SeedNames[id];
+            if (ProductNames.ContainsKey(id))
+                return ProductNames[id];
+
+            return $"未知物品({id})";
+        }
     }
 }
 

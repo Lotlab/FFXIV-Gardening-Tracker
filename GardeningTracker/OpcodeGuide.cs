@@ -90,6 +90,24 @@ namespace GardeningTracker
                 return data.IsGarden(dat.Value.objId, out _, out _);
             });
 
+            AddHandler<ActorControlSelf, FFXIVIpcActorControlSelf>(true, "请在休息区等待休息经验加成上涨", (obj) => {
+                var dat = obj as ActorControlSelf;
+                if (dat.Category != FFXIVIpcActorControlType.UpdateRestedExp)
+                    return false;
+
+                logger.LogDebug(dat.ToString());
+                if (dat.Param[0] > 604800)
+                    return false;
+
+                for (int i = 1; i < dat.Param.Length; i++)
+                {
+                    if (dat.Param[i] != 0)
+                        return false;
+                }
+
+                return true;
+            });
+
             AddHandler<ItemInfo, FFXIVIpcItemInfo>(true, "请打开陆行鸟鞍囊", (obj) =>
             {
                 var dat = obj as ItemInfo;

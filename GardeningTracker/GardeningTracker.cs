@@ -33,6 +33,8 @@ namespace GardeningTracker
 
         public OpcodeGuide opcodeGuide { get; }
 
+        public HybridStats hybridStats { get; }
+
         public GardeningStorage Storage { get; }
         Action<string> logInAct { get; }
 
@@ -108,6 +110,7 @@ namespace GardeningTracker
             Logger.LogInfo($"初始化完毕");
 
             opcodeGuide = new OpcodeGuide(Logger, data);
+            hybridStats = new HybridStats(Logger, data, Config);
 
             if (Config.AutoUpdate)
             {
@@ -154,7 +157,7 @@ namespace GardeningTracker
         /// <summary>
         /// 仓库操作魔数
         /// </summary>
-        UInt16 InventoryOpStart = 149;
+        UInt16 InventoryOpStart { get; set; } = 149;
 
         /// <summary>
         /// ActorID 映射表
@@ -323,6 +326,9 @@ namespace GardeningTracker
                         case ObjectExteralData t5: // 额外数据
                             parseObjectExternalData(t5);
                             break;
+                        case ActorControlSelf t7: // 自身通知信息
+                            parseActorControlSelf(t7);
+                            break;
                         default:
                             break;
                     }
@@ -438,6 +444,24 @@ namespace GardeningTracker
             TargetIDTable[cf.Value.targetID] = cf.Value.actorID;
 
             Logger.LogTrace(cf.ToString());
+        }
+
+        /// <summary>
+        /// 解析玩家控制操作
+        /// </summary>
+        /// <param name="data"></param>
+        private void parseActorControlSelf(ActorControlSelf data)
+        {
+            switch (data.Category)
+            {
+                case FFXIVIpcActorControlType.SetHarvestResult:
+                    var result = new HarvestResult(data.Param);
+                    hybridStats.UploadResult(result);
+                    break;
+                default:
+                    return;
+            }
+            Logger.LogDebug(data.ToString());
         }
 
         /// <summary>

@@ -2,11 +2,12 @@
 
   <PropertyGroup>
     <TargetFramework>net48</TargetFramework>
-    <Copyright>Copyright ©2022-2023 Lotlab</Copyright>
+    <Copyright>Copyright ©2022-2024 Lotlab</Copyright>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC};{09CF833E-9688-47F5-A9BF-881AC318CC80}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
-    <Version>0.3.19</Version>
+    <Version>0.4.0</Version>
 	<ILMergeDebugInfo>false</ILMergeDebugInfo>
+	<Platforms>AnyCPU;ARM64;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
@@ -53,7 +54,7 @@
     <ProjectReference Include="..\PluginCommon\PluginCommon\Lotlab.PluginCommon.csproj" />
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy /y /e $(ProjectDir)data\ $(ProjectDir)$(OutDir)data\&#xD;&#xA;$(TargetDir)..\..\..\..\PluginCommon\PluginCommon.Packer\bin\Release\net48\Lotlab.PluginCommon.Packer --src $(TargetDir) --name GardeningTracker --entry GardeningTracker.dll --v1" />
+    <Exec Command="xcopy /y /e $(ProjectDir)data\ $(ProjectDir)$(OutDir)data\&#xD;&#xA;$(TargetDir)..\..\..\..\..\PluginCommon\PluginCommon.Packer\bin\Release\net48\Lotlab.PluginCommon.Packer --src $(TargetDir) --name GardeningTracker --entry GardeningTracker.dll --v1" />
   </Target>
 
 </Project>

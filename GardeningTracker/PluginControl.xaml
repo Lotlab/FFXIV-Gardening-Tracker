@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:GardeningTracker"
              d:DataContext="{d:DesignInstance Type=local:PluginControlViewModel}"
              mc:Ignorable="d" 
-             d:DesignWidth="800" d:DesignHeight="600"
+             d:DesignWidth="800" d:DesignHeight="800"
              FontFamily="Microsoft YaHei UI"
              FontSize="12"
              >
@@ -112,6 +112,35 @@
                                 <Label Grid.Row="2" Grid.Column="0">自动更新：</Label>
                                 <CheckBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" IsChecked="{Binding AutoUpdate}">启动时更新</CheckBox>
                                 <Button Grid.Row="3" Grid.ColumnSpan="2" Command="{Binding CheckUpdateButton}">检查更新</Button>
+                            </Grid>
+                        </GroupBox>
+                        <GroupBox Header="杂交结果统计">
+                            <Grid VerticalAlignment="Top">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="50"></ColumnDefinition>
+                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition></RowDefinition>
+                                    <RowDefinition></RowDefinition>
+                                    <RowDefinition></RowDefinition>
+                                    <RowDefinition></RowDefinition>
+                                </Grid.RowDefinitions>
+                                <Grid.Resources >
+                                    <Style TargetType="Border" >
+                                        <Setter Property="Padding" Value="5,10,5,10" />
+                                    </Style>
+                                </Grid.Resources>
+                                <Label Grid.Row="0" Grid.Column="0">地址:</Label>
+                                <TextBox Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Text="{Binding StatsWebhookUrl}" />
+                                <Label Grid.Row="1">令牌:</Label>
+                                <TextBox Grid.Row="1"  Grid.Column="1" VerticalAlignment="Center" Text="{Binding StatsWebhookToken}" />
+                                <Label Grid.Row="2" Grid.Column="0">昵称:</Label>
+                                <TextBox Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Text="{Binding StatsUserName}"/>
+                                <Button Grid.Row="3" Grid.Column="1" Command="{Binding HybridStatsTest}">测试上报</Button>
+                                <TextBlock Grid.Row="3" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5, 0, 0, 0">
+                                    <Hyperlink RequestNavigate="Hyperlink_RequestNavigate" NavigateUri="https://github.com/Lotlab/FFXIV-Gardening-Tracker/wiki/HybridStats">帮助</Hyperlink>
+                                </TextBlock>
                             </Grid>
                         </GroupBox>
                         <GroupBox Header="调试" Visibility="{Binding DebugVisible}">
