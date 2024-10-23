@@ -27,7 +27,8 @@ namespace GardeningTracker
 
         GardeningData data { get; }
 
-        NetworkParser parser { get; } = new NetworkParser();
+        NetworkParser parserTx { get; } = new NetworkParser();
+        NetworkParser parserRx { get; } = new NetworkParser();
 
         ExtendedUpdater updater { get; }
 
@@ -142,10 +143,19 @@ namespace GardeningTracker
                     }
                 }
 
+                var parts = content.Split(new string[] { "// rx" }, StringSplitOptions.None);
+
                 // 正常的 opcode 处理流程
-                var opcode = loader.Parse(content);
-                parser.ClearOpcodes();
-                parser.SetOpcodes(opcode);
+                if (parts.Length > 0)
+                {
+                    parserTx.ClearOpcodes();
+                    parserTx.SetOpcodes(loader.Parse(parts[0]));
+                }
+                if (parts.Length > 1)
+                {
+                    parserRx.ClearOpcodes();
+                    parserRx.SetOpcodes(loader.Parse(parts[1]));
+                }
             }
             catch (Exception e)
             {
@@ -268,7 +278,7 @@ namespace GardeningTracker
         {
             try
             {
-                var packet = parser.ParsePacket(message);
+                var packet = parserTx.ParsePacket(message);
                 if (packet != null)
                 {
                     switch (packet)
@@ -303,7 +313,7 @@ namespace GardeningTracker
         {
             try
             {
-                var packet = parser.ParsePacket(message);
+                var packet = parserRx.ParsePacket(message);
                 if (packet != null)
                 {
                     switch (packet)
@@ -389,7 +399,7 @@ namespace GardeningTracker
             if (!ObjectExternalDataTable.ContainsKey(indexLink)) return 0;
 
             var dat = ObjectExternalDataTable[indexLink].Value.data;
-            var landDat = parser.ParseAsPacket<ObjectExternalDataLand>(dat);
+            var landDat = parserRx.ParseAsPacket<ObjectExternalDataLand>(dat);
             Logger.LogTrace(landDat.ToString());
 
             var index = landDat.Seed[landSubID];
@@ -666,7 +676,7 @@ namespace GardeningTracker
             if (obj == null) return;
 
             // 解析施肥操作
-            var fertParam = parser.ParseAsPacket<TargetAction16Fertilize>(act.Value.param);
+            var fertParam = parserTx.ParseAsPacket<TargetAction16Fertilize>(act.Value.param);
             Logger.LogTrace(fertParam.ToString());
 
             // 查找施肥物体
@@ -700,7 +710,7 @@ namespace GardeningTracker
             if (obj == null) return;
 
             // 解析播种操作
-            var seedParam = parser.ParseAsPacket<TargetAction32Sowing>(act.Value.param);
+            var seedParam = parserTx.ParseAsPacket<TargetAction32Sowing>(act.Value.param);
             Logger.LogTrace(seedParam.ToString());
 
             // 查找播种物体

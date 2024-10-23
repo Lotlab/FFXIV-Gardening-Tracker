@@ -15,7 +15,7 @@ namespace GardeningTracker
         public SimpleLogger logger { get; }
         public GardeningData data { get; }
         
-        Dictionary<Type, uint> opcodeResult = new Dictionary<Type, uint>();
+        Dictionary<Type, (bool, uint)> opcodeResult = new Dictionary<Type, (bool, uint)>();
 
         List<string> opcodeComments = new List<string>();
 
@@ -133,7 +133,7 @@ namespace GardeningTracker
             {
                 var dat = obj as UpdateInventorySlot;
                 // 防止物品信息重新出现
-                if (opcodeResult.TryGetValue(typeof(ItemInfo), out uint itemOpcode) && dat.Value.ipc.type == itemOpcode) return false;
+                if (opcodeResult.TryGetValue(typeof(ItemInfo), out var itemOpcode) && dat.Value.ipc.type == itemOpcode.Item2) return false;
                 return dat.Value.catalogId == 7767; // 鱼粉
             });
 
@@ -203,7 +203,7 @@ namespace GardeningTracker
 
                 if (item.Callback(obj))
                 {
-                    opcodeResult[item.Type.Item1] = header.Value.type;
+                    opcodeResult[item.Type.Item1] = (item.Inbound, header.Value.type);
                     parser.SetOpcode(item.Type.Item1.Name, header.Value.type);
                     logger.LogInfo($"{item.Type.Item1.Name} Opcode: {header.Value.type}");
                     return true;
@@ -257,8 +257,19 @@ namespace GardeningTracker
                 content += $"// {item}\n";
             
             foreach (var item in opcodeResult)
-                content += $"{item.Key.Name} = {item.Value},\n";
-            
+            {
+                if (item.Value.Item1 == false)
+                    content += $"{item.Key.Name} = {item.Value.Item2},\n";
+            }
+
+            content += "// rx\n";
+
+            foreach (var item in opcodeResult)
+            {
+                if (item.Value.Item1 == true)
+                    content += $"{item.Key.Name} = {item.Value.Item2},\n";
+            }
+
             try
             {
                 const string fileName = "GardeningTrackerOpcode.txt";
