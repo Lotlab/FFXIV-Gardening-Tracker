@@ -1,13 +1,14 @@
-// InventoryModifyCode: 520
-InventoryModify = 513,
-GuessTargetAction = 785,
-GuessTargetAction16 = 425,
-GuessTargetAction32 = 782,
+// InventoryModifyCode: 153
+InventoryModify = 146,
+GuessTargetAction = 783,
+GuessTargetAction16 = 583,
+GuessTargetAction32 = 714,
 // rx
-GuessZoneInto = 286,
-ObjectExteralData = 723,
-ObjectSpawn = 299,
-ActorControlSelf = 425,
-ItemInfo = 272,
-UpdateInventorySlot = 936,
-EventStart = 485,
+GuessZoneInto = 508,
+ObjectExteralData = 109,
+ObjectSpawn = 777,
+ActorControlSelf = 466,
+ItemInfo = 633,
+UpdateInventorySlot = 749,
+EventStart = 114,
+
