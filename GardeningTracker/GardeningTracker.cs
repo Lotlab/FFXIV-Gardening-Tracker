@@ -648,7 +648,7 @@ namespace GardeningTracker
                     break;
                 case 2:
                     action = "护理";
-                    Storage.Care(obj, act.Value.ipc.timestamp, guessSeed);
+                    Storage.Care(obj, (ulong)DateTimeOffset.UtcNow.ToUnixTimeSeconds(), guessSeed);
                     actLogOperation(obj, GardenOperation.Care);
                     break;
                 case 3:
@@ -691,7 +691,7 @@ namespace GardeningTracker
             // 记录到存储区
             var fertilizerID = ItemTable[itemIndex].catalogId;
             var guessSeed = GetSeedID(obj.HousingLink);
-            Storage.Fertilize(obj, fertilizerID, act.Value.ipc.timestamp, guessSeed);
+            Storage.Fertilize(obj, fertilizerID, (ulong)DateTimeOffset.UtcNow.ToUnixTimeSeconds(), guessSeed);
 
             // 写日志
             Logger.LogInfo($"对位于 {getPotNamePos(obj)} 的作物施了 {data.GetFertilizerName(fertilizerID)}");
@@ -731,7 +731,7 @@ namespace GardeningTracker
             // 记录到存储区
             var soilObjID = ItemTable[soilIndex].catalogId;
             var seedObjID = ItemTable[seedIndex].catalogId;
-            Storage.Sowing(new GardeningItem(obj, soilObjID, seedObjID, act.Value.ipc.timestamp));
+            Storage.Sowing(new GardeningItem(obj, soilObjID, seedObjID, (ulong)DateTimeOffset.UtcNow.ToUnixTimeSeconds()));
 
             // 写日志
             var soilName = data.GetSoilName(soilObjID);
