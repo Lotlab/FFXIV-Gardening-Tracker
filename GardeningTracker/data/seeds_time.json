@@ -508,5 +508,25 @@
     "Index": 102,
     "GrowTime": 24,
     "WiltTime": 0
+  },
+  {
+    "Index": 103,
+    "GrowTime": 24,
+    "WiltTime": 0
+  },
+  {
+    "Index": 104,
+    "GrowTime": 24,
+    "WiltTime": 0
+  },
+  {
+    "Index": 105,
+    "GrowTime": 24,
+    "WiltTime": 0
+  },
+  {
+    "Index": 106,
+    "GrowTime": 24,
+    "WiltTime": 0
   }
 ]
