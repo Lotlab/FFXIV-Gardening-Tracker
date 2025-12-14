@@ -1,14 +1,15 @@
+// 2025.10.23.0000.0000
 // InventoryModifyCode: 153
-InventoryModify = 146,
-GuessTargetAction = 783,
-GuessTargetAction16 = 583,
-GuessTargetAction32 = 714,
+InventoryModify = 990,
+GuessTargetAction = 217,
+GuessTargetAction16 = 522,
+GuessTargetAction32 = 981,
 // rx
-GuessZoneInto = 508,
-ObjectExteralData = 109,
-ObjectSpawn = 777,
-ActorControlSelf = 466,
-ItemInfo = 633,
-UpdateInventorySlot = 749,
-EventStart = 114,
+GuessZoneInto = 256,
+ObjectExteralData = 476,
+ObjectSpawn = 201,
+ActorControlSelf = 272,
+ItemInfo = 183,
+UpdateInventorySlot = 385,
+EventStart = 565,
 
