@@ -26,7 +26,7 @@ namespace GardeningTracker.Packets
         public IPCHeader ipc;
         public UInt16 category;
         public UInt16 padding;
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 7)]
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 9)]
         public UInt32[] param;
     }
 
